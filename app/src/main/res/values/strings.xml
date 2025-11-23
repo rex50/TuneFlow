@@ -21,4 +21,6 @@
     <string name="volume_mapping_max">- At %1$.1f m/s²: Volume = %2$d</string>
     <string name="volume_mapping_how_it_works">How it works:</string>
     <string name="volume_mapping_helper">The app continuously monitors the device acceleration. As acceleration increases (for example when driving faster or on rough roads), the volume automatically adjusts within the specified range.</string>
+    <string name="acceleration_value">Acceleration: %.2f m/s²</string>
+    <string name="volume_value">Volume: %1$d</string>
 </resources>
