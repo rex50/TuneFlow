@@ -13,6 +13,7 @@
     <string name="volume_max_label">Maximum Volume</string>
     <string name="volume_range_helper">Set the minimum and maximum media volume levels</string>
     <string name="acceleration_range_title">Acceleration Range</string>
+    <string name="speed_range_title">Speed Range</string>
     <string name="acceleration_min_label">Minimum Acceleration</string>
     <string name="acceleration_max_label">Maximum Acceleration</string>
     <string name="acceleration_range_helper">Define the acceleration range that maps to your volume range</string>

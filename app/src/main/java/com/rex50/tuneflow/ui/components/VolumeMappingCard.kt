@@ -16,29 +16,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
+import com.rex50.tuneflow.domain.model.VolumeSettings
+import com.rex50.tuneflow.ui.theme.TuneFlowTheme
 
 /**
  * Displays a card showing how acceleration maps to volume.
  *
  * Features:
- * - Shows mapping for minimum and maximum acceleration/volume
+ * - Shows mapping for minimum and maximum acceleration/volume in selected unit
  * - Explains how the mapping works
  * - Provides helper text for user guidance
  *
- * @param minAcceleration Minimum acceleration value
- * @param maxAcceleration Maximum acceleration value
- * @param minVolume Minimum volume value
- * @param maxVolume Maximum volume value
+ * @param volumeSettings Current volume settings including acceleration unit
  * @param modifier Optional modifier for the card
  */
 @Composable
 fun VolumeMappingCard(
-    minAcceleration: Float,
-    maxAcceleration: Float,
-    minVolume: Int,
-    maxVolume: Int,
+    volumeSettings: VolumeSettings,
     modifier: Modifier = Modifier
 ) {
+    val unit = volumeSettings.accelerationUnit
+    val minDisplayValue = unit.convertFromMps2(volumeSettings.minAcceleration)
+    val maxDisplayValue = unit.convertFromMps2(volumeSettings.maxAcceleration)
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -56,12 +56,12 @@ fun VolumeMappingCard(
             )
 
             Text(
-                text = stringResource(R.string.volume_mapping_min, minAcceleration, minVolume),
+                text = "- At %.1f %s: Volume = %d".format(minDisplayValue, unit.getLabel(), volumeSettings.minVolume),
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Text(
-                text = stringResource(R.string.volume_mapping_max, maxAcceleration, maxVolume),
+                text = "- At %.1f %s: Volume = %d".format(maxDisplayValue, unit.getLabel(), volumeSettings.maxVolume),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -87,11 +87,13 @@ fun VolumeMappingCard(
  */
 @Preview(showBackground = true)
 @Composable
-fun VolumeMappingCardPreview() {
+private fun VolumeMappingCardPreview() {
     VolumeMappingCard(
-        minAcceleration = 0f,
-        maxAcceleration = 10f,
-        minVolume = 0,
-        maxVolume = 15
+        volumeSettings = VolumeSettings(
+            minAcceleration = 0f,
+            maxAcceleration = 10f,
+            minVolume = 0,
+            maxVolume = 15
+        )
     )
 }

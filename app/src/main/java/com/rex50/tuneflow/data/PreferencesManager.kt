@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.rex50.tuneflow.domain.model.AccelerationUnit
 import com.rex50.tuneflow.domain.model.VolumeSettings
 import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +24,7 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
         private val MIN_ACCELERATION = floatPreferencesKey("min_acceleration")
         private val MAX_ACCELERATION = floatPreferencesKey("max_acceleration")
         private val IS_SERVICE_ENABLED = booleanPreferencesKey("is_service_enabled")
+        private val ACCELERATION_UNIT = intPreferencesKey("acceleration_unit")
     }
 
     override val settings: Flow<VolumeSettings> = context.dataStore.data.map { preferences ->
@@ -31,7 +33,8 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
             maxVolume = preferences[MAX_VOLUME] ?: 15,
             minAcceleration = preferences[MIN_ACCELERATION] ?: 0f,
             maxAcceleration = preferences[MAX_ACCELERATION] ?: 10f,
-            isServiceEnabled = preferences[IS_SERVICE_ENABLED] ?: false
+            isServiceEnabled = preferences[IS_SERVICE_ENABLED] ?: false,
+            accelerationUnit = AccelerationUnit.fromOrdinal(preferences[ACCELERATION_UNIT] ?: 0)
         )
     }
 
@@ -62,6 +65,12 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
     override suspend fun updateServiceEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[IS_SERVICE_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun updateAccelerationUnit(unit: AccelerationUnit) {
+        context.dataStore.edit { preferences ->
+            preferences[ACCELERATION_UNIT] = unit.ordinal
         }
     }
 }

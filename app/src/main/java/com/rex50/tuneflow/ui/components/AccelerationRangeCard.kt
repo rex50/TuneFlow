@@ -16,36 +16,47 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
+import com.rex50.tuneflow.domain.model.AccelerationUnit
+import com.rex50.tuneflow.domain.model.VolumeSettings
+import com.rex50.tuneflow.ui.theme.TuneFlowTheme
 
 /**
  * Displays a card UI for configuring the minimum and maximum acceleration range.
  *
  * Features:
- * - Shows sliders for min and max acceleration values
+ * - Shows sliders for min and max acceleration values in selected unit
  * - Displays current values with labels
  * - Provides helper text for user guidance
+ * - Automatically converts between units
  *
- * @param minAcceleration Current minimum acceleration value
- * @param maxAcceleration Current maximum acceleration value
- * @param onMinChange Callback when min acceleration slider changes
- * @param onMaxChange Callback when max acceleration slider changes
+ * @param volumeSettings Current volume settings including acceleration unit
+ * @param onMinChange Callback when min acceleration slider changes (in m/s²)
+ * @param onMaxChange Callback when max acceleration slider changes (in m/s²)
  * @param modifier Optional modifier for the card
  */
 @Composable
 fun AccelerationRangeCard(
-    minAcceleration: Float,
-    maxAcceleration: Float,
+    volumeSettings: VolumeSettings,
     onMinChange: (Float) -> Unit,
     onMaxChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val unit = volumeSettings.accelerationUnit
+    val minDisplayValue = unit.convertFromMps2(volumeSettings.minAcceleration)
+    val maxDisplayValue = unit.convertFromMps2(volumeSettings.maxAcceleration)
+
     Card(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = stringResource(R.string.acceleration_range_title),
+                text = stringResource(
+                    if(unit == AccelerationUnit.METERS_PER_SECOND_SQUARED)
+                        R.string.acceleration_range_title
+                    else
+                        R.string.speed_range_title
+                ),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -57,14 +68,17 @@ fun AccelerationRangeCard(
                 ) {
                     Text(stringResource(R.string.acceleration_min_label))
                     Text(
-                        text = "%.1f m/s²".format(minAcceleration),
+                        text = "%.1f %s".format(minDisplayValue, unit.getLabel()),
                         fontWeight = FontWeight.Bold
                     )
                 }
                 Slider(
-                    value = minAcceleration,
-                    onValueChange = onMinChange,
-                    valueRange = 0f..5f,
+                    value = minDisplayValue,
+                    onValueChange = { displayValue ->
+                        // Convert back to m/s² before calling callback
+                        onMinChange(unit.convertToMps2(displayValue))
+                    },
+                    valueRange = AccelerationUnit.getMinRange(unit)..AccelerationUnit.getMaxRangeForMin(unit),
                     steps = 49
                 )
             }
@@ -76,14 +90,17 @@ fun AccelerationRangeCard(
                 ) {
                     Text(stringResource(R.string.acceleration_max_label))
                     Text(
-                        text = "%.1f m/s²".format(maxAcceleration),
+                        text = "%.1f %s".format(maxDisplayValue, unit.getLabel()),
                         fontWeight = FontWeight.Bold
                     )
                 }
                 Slider(
-                    value = maxAcceleration,
-                    onValueChange = onMaxChange,
-                    valueRange = 5f..20f,
+                    value = maxDisplayValue,
+                    onValueChange = { displayValue ->
+                        // Convert back to m/s² before calling callback
+                        onMaxChange(unit.convertToMps2(displayValue))
+                    },
+                    valueRange = AccelerationUnit.getMinRangeForMax(unit)..AccelerationUnit.getMaxRangeForMax(unit),
                     steps = 149
                 )
             }
@@ -102,10 +119,12 @@ fun AccelerationRangeCard(
  */
 @Preview(showBackground = true)
 @Composable
-fun AccelerationRangeCardPreview() {
+private fun AccelerationRangeCardPreview() {
     AccelerationRangeCard(
-        minAcceleration = 2.5f,
-        maxAcceleration = 10f,
+        volumeSettings = VolumeSettings(
+            minAcceleration = 2.5f,
+            maxAcceleration = 10f
+        ),
         onMinChange = {},
         onMaxChange = {}
     )

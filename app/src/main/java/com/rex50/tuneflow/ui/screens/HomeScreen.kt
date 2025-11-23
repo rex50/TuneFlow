@@ -29,6 +29,7 @@ import com.rex50.tuneflow.ui.HomeScreenViewModel
 import com.rex50.tuneflow.ui.components.AccelerationRangeCard
 import com.rex50.tuneflow.ui.components.ServiceControlCard
 import com.rex50.tuneflow.ui.components.SpeedometerCard
+import com.rex50.tuneflow.ui.components.UnitSelectorCard
 import com.rex50.tuneflow.ui.components.VolumeMappingCard
 import com.rex50.tuneflow.ui.components.VolumeRangeCard
 import kotlinx.coroutines.launch
@@ -105,18 +106,20 @@ fun HomeScreen(viewModel: HomeScreenViewModel) {
 
             // Acceleration Range Section
             AccelerationRangeCard(
-                minAcceleration = volumeSettings.minAcceleration,
-                maxAcceleration = volumeSettings.maxAcceleration,
+                volumeSettings = volumeSettings,
                 onMinChange = { viewModel.updateMinAcceleration(it) },
                 onMaxChange = { viewModel.updateMaxAcceleration(it) }
             )
 
+            // Unit Selector Section
+            UnitSelectorCard(
+                selectedUnit = volumeSettings.accelerationUnit,
+                onUnitSelected = { viewModel.updateAccelerationUnit(it) }
+            )
+
             // Volume Mapping Info
             VolumeMappingCard(
-                minAcceleration = volumeSettings.minAcceleration,
-                maxAcceleration = volumeSettings.maxAcceleration,
-                minVolume = volumeSettings.minVolume,
-                maxVolume = volumeSettings.maxVolume
+                volumeSettings = volumeSettings
             )
 
             Spacer(modifier = Modifier.height(16.dp))

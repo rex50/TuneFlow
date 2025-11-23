@@ -2,11 +2,13 @@ package com.rex50.tuneflow.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rex50.tuneflow.domain.model.AccelerationUnit
 import com.rex50.tuneflow.domain.model.ServiceState
 import com.rex50.tuneflow.domain.model.VolumeSettings
 import com.rex50.tuneflow.domain.usecase.GetVolumeSettingsUseCase
 import com.rex50.tuneflow.domain.usecase.ObserveServiceStateUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateAccelerationRangeUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateAccelerationUnitUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateServiceEnabledUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateVolumeRangeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +24,7 @@ class HomeScreenViewModel @Inject constructor(
     private val updateVolumeRangeUseCase: UpdateVolumeRangeUseCase,
     private val updateAccelerationRangeUseCase: UpdateAccelerationRangeUseCase,
     private val updateServiceEnabledUseCase: UpdateServiceEnabledUseCase,
+    private val updateAccelerationUnitUseCase: UpdateAccelerationUnitUseCase,
     observeServiceStateUseCase: ObserveServiceStateUseCase,
     getVolumeSettingsUseCase: GetVolumeSettingsUseCase
 ) : ViewModel() {
@@ -61,5 +64,9 @@ class HomeScreenViewModel @Inject constructor(
 
     fun setServiceEnabled(enabled: Boolean) {
         viewModelScope.launch { updateServiceEnabledUseCase(enabled) }
+    }
+
+    fun updateAccelerationUnit(unit: AccelerationUnit) {
+        viewModelScope.launch { updateAccelerationUnitUseCase(unit) }
     }
 }

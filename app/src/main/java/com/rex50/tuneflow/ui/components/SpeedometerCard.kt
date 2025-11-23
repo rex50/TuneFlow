@@ -69,7 +69,11 @@ fun SpeedometerCard(
                 size = 200.dp
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(stringResource(R.string.acceleration_value).format(serviceState.acceleration))
+            
+            // Display acceleration in selected unit
+            val unit = volumeSettings.accelerationUnit
+            val displayValue = unit.convertFromMps2(serviceState.acceleration)
+            Text("%.1f %s".format(displayValue, unit.getLabel()))
             Text(stringResource(R.string.volume_value, serviceState.volume))
         }
     }
