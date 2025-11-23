@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">TuneFlow</string>
+    <string name="app_description">Automatic volume control based on driving acceleration</string>
+    <string name="service_notification_title">TuneFlow Active</string>
+    <string name="service_notification_text">Monitoring acceleration for volume control</string>
 </resources>
