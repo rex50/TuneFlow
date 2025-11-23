@@ -2,6 +2,7 @@ package com.rex50.tuneflow.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,8 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
@@ -63,17 +68,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Row {
-                        // App Logo
-                        Image(
-                            painter =  androidx.compose.ui.res.painterResource(id = R.drawable.ic_launcher_foreground),
-                            contentDescription = stringResource(R.string.app_name),
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                        )
-                        // App Name
-                        Text(stringResource(R.string.app_name))
-                    }
+                    Text(stringResource(R.string.app_name))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
