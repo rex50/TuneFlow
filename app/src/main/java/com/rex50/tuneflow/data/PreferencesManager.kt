@@ -8,12 +8,14 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.rex50.tuneflow.domain.model.VolumeSettings
+import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "volume_settings")
 
-class PreferencesManager(private val context: Context) {
+class PreferencesManager(private val context: Context) : VolumeSettingsRepository {
 
     companion object {
         private val MIN_VOLUME = intPreferencesKey("min_volume")
@@ -23,7 +25,7 @@ class PreferencesManager(private val context: Context) {
         private val IS_SERVICE_ENABLED = booleanPreferencesKey("is_service_enabled")
     }
 
-    val volumeSettings: Flow<VolumeSettings> = context.dataStore.data.map { preferences ->
+    override val settings: Flow<VolumeSettings> = context.dataStore.data.map { preferences ->
         VolumeSettings(
             minVolume = preferences[MIN_VOLUME] ?: 5,
             maxVolume = preferences[MAX_VOLUME] ?: 15,
@@ -33,34 +35,33 @@ class PreferencesManager(private val context: Context) {
         )
     }
 
-    suspend fun updateMinVolume(volume: Int) {
+    override suspend fun updateMinVolume(volume: Int) {
         context.dataStore.edit { preferences ->
             preferences[MIN_VOLUME] = volume
         }
     }
 
-    suspend fun updateMaxVolume(volume: Int) {
+    override suspend fun updateMaxVolume(volume: Int) {
         context.dataStore.edit { preferences ->
             preferences[MAX_VOLUME] = volume
         }
     }
 
-    suspend fun updateMinAcceleration(acceleration: Float) {
+    override suspend fun updateMinAcceleration(acceleration: Float) {
         context.dataStore.edit { preferences ->
             preferences[MIN_ACCELERATION] = acceleration
         }
     }
 
-    suspend fun updateMaxAcceleration(acceleration: Float) {
+    override suspend fun updateMaxAcceleration(acceleration: Float) {
         context.dataStore.edit { preferences ->
             preferences[MAX_ACCELERATION] = acceleration
         }
     }
 
-    suspend fun updateServiceEnabled(enabled: Boolean) {
+    override suspend fun updateServiceEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[IS_SERVICE_ENABLED] = enabled
         }
     }
 }
-

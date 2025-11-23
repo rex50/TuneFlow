@@ -17,7 +17,11 @@ import androidx.core.app.NotificationCompat
 import com.rex50.tuneflow.MainActivity
 import com.rex50.tuneflow.R
 import com.rex50.tuneflow.data.PreferencesManager
-import com.rex50.tuneflow.data.VolumeSettings
+import com.rex50.tuneflow.domain.model.ServiceState
+import com.rex50.tuneflow.domain.repository.ServiceStateRepository
+import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,7 +29,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
+@AndroidEntryPoint
 class VolumeControlService : Service(), SensorEventListener {
+
+    @Inject
+    lateinit var volumeSettingsRepository: VolumeSettingsRepository
+
+    @Inject
+    lateinit var serviceStateRepository: ServiceStateRepository
 
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
@@ -33,7 +44,7 @@ class VolumeControlService : Service(), SensorEventListener {
     private lateinit var preferencesManager: PreferencesManager
 
     private val serviceScope = CoroutineScope(Dispatchers.Default + Job())
-    private var currentSettings: VolumeSettings? = null
+    private var currentSettings: com.rex50.tuneflow.domain.model.VolumeSettings? = null
 
     private var lastAcceleration = 0f
     private var currentAcceleration = 0f
@@ -68,7 +79,7 @@ class VolumeControlService : Service(), SensorEventListener {
         preferencesManager = PreferencesManager(this)
 
         serviceScope.launch {
-            preferencesManager.volumeSettings.collect { settings ->
+            volumeSettingsRepository.settings.collect { settings ->
                 currentSettings = settings
             }
         }
@@ -94,7 +105,7 @@ class VolumeControlService : Service(), SensorEventListener {
         super.onDestroy()
         sensorManager.unregisterListener(this)
         serviceScope.launch {
-            preferencesManager.updateServiceEnabled(false)
+            volumeSettingsRepository.updateServiceEnabled(false)
         }
     }
 
@@ -153,6 +164,10 @@ class VolumeControlService : Service(), SensorEventListener {
 
         // Update notification with current acceleration and volume
         updateNotification(acceleration, targetVolume)
+
+        serviceScope.launch {
+            serviceStateRepository.updateState(ServiceState(acceleration, targetVolume))
+        }
     }
 
     private fun createNotificationChannel() {
@@ -209,4 +224,3 @@ class VolumeControlService : Service(), SensorEventListener {
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 }
-

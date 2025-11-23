@@ -1,5 +1,6 @@
 package com.rex50.tuneflow.data
 
+@Deprecated("Use domain model com.rex50.tuneflow.domain.model.VolumeSettings")
 data class VolumeSettings(
     val minVolume: Int = 5,
     val maxVolume: Int = 15,
@@ -7,4 +8,3 @@ data class VolumeSettings(
     val maxAcceleration: Float = 10f,
     val isServiceEnabled: Boolean = false
 )
-

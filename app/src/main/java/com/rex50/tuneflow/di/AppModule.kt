@@ -1,0 +1,64 @@
+package com.rex50.tuneflow.di
+
+import android.content.Context
+import com.rex50.tuneflow.data.PreferencesManager
+import com.rex50.tuneflow.data.repository.InMemoryServiceStateRepository
+import com.rex50.tuneflow.domain.repository.ServiceStateRepository
+import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
+import com.rex50.tuneflow.domain.usecase.GetVolumeSettingsUseCase
+import com.rex50.tuneflow.domain.usecase.ObserveServiceStateUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateAccelerationRangeUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateServiceEnabledUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateVolumeRangeUseCase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideVolumeSettingsRepository(
+        @ApplicationContext context: Context
+    ): VolumeSettingsRepository = PreferencesManager(context)
+
+    @Provides
+    @Singleton
+    fun provideServiceStateRepository(): ServiceStateRepository = InMemoryServiceStateRepository()
+
+    // Provide domain use-cases
+    @Provides
+    @Singleton
+    fun provideGetVolumeSettingsUseCase(
+        repository: VolumeSettingsRepository
+    ): GetVolumeSettingsUseCase = GetVolumeSettingsUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateVolumeRangeUseCase(
+        repository: VolumeSettingsRepository
+    ): UpdateVolumeRangeUseCase = UpdateVolumeRangeUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateAccelerationRangeUseCase(
+        repository: VolumeSettingsRepository
+    ): UpdateAccelerationRangeUseCase = UpdateAccelerationRangeUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateServiceEnabledUseCase(
+        repository: VolumeSettingsRepository
+    ): UpdateServiceEnabledUseCase = UpdateServiceEnabledUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideObserveServiceStateUseCase(
+        repository: ServiceStateRepository
+    ): ObserveServiceStateUseCase = ObserveServiceStateUseCase(repository)
+}
