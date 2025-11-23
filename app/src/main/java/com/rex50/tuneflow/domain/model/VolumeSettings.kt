@@ -79,7 +79,7 @@ data class VolumeSettings(
     val isServiceEnabled: Boolean = false,
     val maxAcceleration: Float = 5.0f,
     val minAcceleration: Float = 0.1f,
-    val maxVolume: Int = 100,
-    val minVolume: Int = 0,
+    val maxVolumePercent: Int = 60, // Default: 60% of device max volume
+    val minVolumePercent: Int = 20, // Default: 20% of device max volume
     val accelerationUnit: AccelerationUnit = AccelerationUnit.METERS_PER_SECOND_SQUARED
 )

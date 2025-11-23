@@ -98,8 +98,8 @@ fun HomeScreen(viewModel: HomeScreenViewModel) {
 
             // Volume Range Section
             VolumeRangeCard(
-                minVolume = volumeSettings.minVolume,
-                maxVolume = volumeSettings.maxVolume,
+                minVolume = volumeSettings.minVolumePercent,
+                maxVolume = volumeSettings.maxVolumePercent,
                 onMinChange = { viewModel.updateMinVolume(it) },
                 onMaxChange = { viewModel.updateMaxVolume(it) }
             )

@@ -143,7 +143,10 @@ class VolumeControlService : Service(), SensorEventListener {
     private fun updateVolume(acceleration: Float) {
         val settings = currentSettings ?: return
 
-        // Map acceleration to volume
+        // Get device's maximum volume level
+        val maxDeviceVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+
+        // Map acceleration to volume percentage
         val normalizedAcceleration = when {
             acceleration <= settings.minAcceleration -> 0f
             acceleration >= settings.maxAcceleration -> 1f
@@ -151,22 +154,26 @@ class VolumeControlService : Service(), SensorEventListener {
                    (settings.maxAcceleration - settings.minAcceleration)
         }
 
-        // Calculate target volume
-        val volumeRange = settings.maxVolume - settings.minVolume
-        val targetVolume = settings.minVolume + (volumeRange * normalizedAcceleration).toInt()
+        // Calculate target volume as percentage of device max
+        val volumePercentRange = settings.maxVolumePercent - settings.minVolumePercent
+        val targetVolumePercent = settings.minVolumePercent + (volumePercentRange * normalizedAcceleration).toInt()
+
+        // Convert percentage to actual device volume level
+        val targetVolume = (maxDeviceVolume * targetVolumePercent / 100f).toInt()
+            .coerceIn(0, maxDeviceVolume)
 
         // Set the media volume
         audioManager.setStreamVolume(
             AudioManager.STREAM_MUSIC,
-            targetVolume.coerceIn(settings.minVolume, settings.maxVolume),
+            targetVolume,
             0
         )
 
-        // Update notification with current acceleration and volume
-        updateNotification(acceleration, targetVolume)
+        // Update notification with current acceleration and volume percentage
+        updateNotification(acceleration, targetVolumePercent)
 
         serviceScope.launch {
-            serviceStateRepository.updateState(ServiceState(acceleration, targetVolume))
+            serviceStateRepository.updateState(ServiceState(acceleration, targetVolumePercent))
         }
     }
 
@@ -203,7 +210,7 @@ class VolumeControlService : Service(), SensorEventListener {
             .build()
     }
 
-    private fun updateNotification(acceleration: Float, volume: Int) {
+    private fun updateNotification(acceleration: Float, volumePercent: Int) {
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -212,9 +219,13 @@ class VolumeControlService : Service(), SensorEventListener {
             PendingIntent.FLAG_IMMUTABLE
         )
 
+        val settings = currentSettings
+        val unit = settings?.accelerationUnit ?: com.rex50.tuneflow.domain.model.AccelerationUnit.METERS_PER_SECOND_SQUARED
+        val displayValue = unit.convertFromMps2(acceleration)
+
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("TuneFlow Active")
-            .setContentText("Acceleration: %.2f m/s² | Volume: %d".format(acceleration, volume))
+            .setContentText("%.1f %s | Volume: %d%%".format(displayValue, unit.getLabel(), volumePercent))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)

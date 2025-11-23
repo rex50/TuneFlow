@@ -19,8 +19,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 class PreferencesManager(private val context: Context) : VolumeSettingsRepository {
 
     companion object {
-        private val MIN_VOLUME = intPreferencesKey("min_volume")
-        private val MAX_VOLUME = intPreferencesKey("max_volume")
+        private val MIN_VOLUME_PERCENT = intPreferencesKey("min_volume_percent")
+        private val MAX_VOLUME_PERCENT = intPreferencesKey("max_volume_percent")
         private val MIN_ACCELERATION = floatPreferencesKey("min_acceleration")
         private val MAX_ACCELERATION = floatPreferencesKey("max_acceleration")
         private val IS_SERVICE_ENABLED = booleanPreferencesKey("is_service_enabled")
@@ -29,8 +29,8 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
 
     override val settings: Flow<VolumeSettings> = context.dataStore.data.map { preferences ->
         VolumeSettings(
-            minVolume = preferences[MIN_VOLUME] ?: 5,
-            maxVolume = preferences[MAX_VOLUME] ?: 15,
+            minVolumePercent = preferences[MIN_VOLUME_PERCENT] ?: 20,
+            maxVolumePercent = preferences[MAX_VOLUME_PERCENT] ?: 60,
             minAcceleration = preferences[MIN_ACCELERATION] ?: 0f,
             maxAcceleration = preferences[MAX_ACCELERATION] ?: 10f,
             isServiceEnabled = preferences[IS_SERVICE_ENABLED] ?: false,
@@ -40,13 +40,13 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
 
     override suspend fun updateMinVolume(volume: Int) {
         context.dataStore.edit { preferences ->
-            preferences[MIN_VOLUME] = volume
+            preferences[MIN_VOLUME_PERCENT] = volume
         }
     }
 
     override suspend fun updateMaxVolume(volume: Int) {
         context.dataStore.edit { preferences ->
-            preferences[MAX_VOLUME] = volume
+            preferences[MAX_VOLUME_PERCENT] = volume
         }
     }
 

@@ -56,12 +56,12 @@ fun VolumeMappingCard(
             )
 
             Text(
-                text = "- At %.1f %s: Volume = %d".format(minDisplayValue, unit.getLabel(), volumeSettings.minVolume),
+                text = "- At %.1f %s: Volume = %d%%".format(minDisplayValue, unit.getLabel(), volumeSettings.minVolumePercent),
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Text(
-                text = "- At %.1f %s: Volume = %d".format(maxDisplayValue, unit.getLabel(), volumeSettings.maxVolume),
+                text = "- At %.1f %s: Volume = %d%%".format(maxDisplayValue, unit.getLabel(), volumeSettings.maxVolumePercent),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -92,8 +92,8 @@ private fun VolumeMappingCardPreview() {
         volumeSettings = VolumeSettings(
             minAcceleration = 0f,
             maxAcceleration = 10f,
-            minVolume = 0,
-            maxVolume = 15
+            minVolumePercent = 20,
+            maxVolumePercent = 60
         )
     )
 }

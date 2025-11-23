@@ -56,13 +56,13 @@ fun VolumeRangeCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.volume_min_label))
-                    Text(text = minVolume.toString(), fontWeight = FontWeight.Bold)
+                    Text(text = "$minVolume%", fontWeight = FontWeight.Bold)
                 }
                 Slider(
                     value = minVolume.toFloat(),
                     onValueChange = { onMinChange(it.toInt()) },
-                    valueRange = 0f..15f,
-                    steps = 14
+                    valueRange = 0f..100f,
+                    steps = 99
                 )
             }
 
@@ -72,13 +72,13 @@ fun VolumeRangeCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.volume_max_label))
-                    Text(text = maxVolume.toString(), fontWeight = FontWeight.Bold)
+                    Text(text = "$maxVolume%", fontWeight = FontWeight.Bold)
                 }
                 Slider(
                     value = maxVolume.toFloat(),
                     onValueChange = { onMaxChange(it.toInt()) },
-                    valueRange = 0f..15f,
-                    steps = 14
+                    valueRange = 0f..100f,
+                    steps = 99
                 )
             }
 
@@ -98,8 +98,8 @@ fun VolumeRangeCard(
 @Composable
 fun VolumeRangeCardPreview() {
     VolumeRangeCard(
-        minVolume = 0,
-        maxVolume = 15,
+        minVolume = 20,
+        maxVolume = 60,
         onMinChange = {},
         onMaxChange = {}
     )
