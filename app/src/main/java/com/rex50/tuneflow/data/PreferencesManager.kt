@@ -31,10 +31,10 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
         VolumeSettings(
             minVolumePercent = preferences[MIN_VOLUME_PERCENT] ?: 20,
             maxVolumePercent = preferences[MAX_VOLUME_PERCENT] ?: 60,
-            minAcceleration = preferences[MIN_ACCELERATION] ?: 0f,
-            maxAcceleration = preferences[MAX_ACCELERATION] ?: 10f,
+            minAcceleration = preferences[MIN_ACCELERATION] ?: 1.39f, // Default: 5 km/h
+            maxAcceleration = preferences[MAX_ACCELERATION] ?: 27.78f, // Default: 100 km/h
             isServiceEnabled = preferences[IS_SERVICE_ENABLED] ?: false,
-            accelerationUnit = AccelerationUnit.fromOrdinal(preferences[ACCELERATION_UNIT] ?: 0)
+            accelerationUnit = AccelerationUnit.fromOrdinal(preferences[ACCELERATION_UNIT] ?: 1) // 1 = KILOMETERS_PER_HOUR
         )
     }
 

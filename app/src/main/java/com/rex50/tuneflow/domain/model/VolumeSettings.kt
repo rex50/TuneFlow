@@ -51,35 +51,39 @@ enum class AccelerationUnit {
 
     companion object {
         fun fromOrdinal(ordinal: Int): AccelerationUnit =
-            entries.getOrNull(ordinal) ?: METERS_PER_SECOND_SQUARED
+            entries.getOrNull(ordinal) ?: KILOMETERS_PER_HOUR
 
-        fun getMinRange(unit: AccelerationUnit): Float = 0f
+        fun getMinRange(unit: AccelerationUnit): Float = when (unit) {
+            METERS_PER_SECOND_SQUARED -> 0f
+            KILOMETERS_PER_HOUR -> 5f
+            MILES_PER_HOUR -> 3f
+        }
 
         fun getMaxRangeForMin(unit: AccelerationUnit): Float = when (unit) {
             METERS_PER_SECOND_SQUARED -> 5f
-            KILOMETERS_PER_HOUR -> 18f // ~5 m/s
-            MILES_PER_HOUR -> 11.2f // ~5 m/s
+            KILOMETERS_PER_HOUR -> 100f // 5-100 km/h range
+            MILES_PER_HOUR -> 62f // ~5-62 mph range
         }
 
         fun getMaxRangeForMax(unit: AccelerationUnit): Float = when (unit) {
             METERS_PER_SECOND_SQUARED -> 20f
-            KILOMETERS_PER_HOUR -> 72f // ~20 m/s
-            MILES_PER_HOUR -> 44.7f // ~20 m/s
+            KILOMETERS_PER_HOUR -> 100f // Max 100 km/h
+            MILES_PER_HOUR -> 62f // Max 62 mph
         }
 
         fun getMinRangeForMax(unit: AccelerationUnit): Float = when (unit) {
             METERS_PER_SECOND_SQUARED -> 5f
-            KILOMETERS_PER_HOUR -> 18f
-            MILES_PER_HOUR -> 11.2f
+            KILOMETERS_PER_HOUR -> 5f
+            MILES_PER_HOUR -> 3f
         }
     }
 }
 
 data class VolumeSettings(
     val isServiceEnabled: Boolean = false,
-    val maxAcceleration: Float = 5.0f,
-    val minAcceleration: Float = 0.1f,
+    val maxAcceleration: Float = 27.78f, // Default: 100 km/h in m/s²
+    val minAcceleration: Float = 1.39f, // Default: 5 km/h in m/s²
     val maxVolumePercent: Int = 60, // Default: 60% of device max volume
     val minVolumePercent: Int = 20, // Default: 20% of device max volume
-    val accelerationUnit: AccelerationUnit = AccelerationUnit.METERS_PER_SECOND_SQUARED
+    val accelerationUnit: AccelerationUnit = AccelerationUnit.KILOMETERS_PER_HOUR
 )
