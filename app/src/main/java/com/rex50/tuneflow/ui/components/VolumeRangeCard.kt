@@ -13,9 +13,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
 
+/**
+ * Displays a card UI for configuring the minimum and maximum volume range.
+ *
+ * Features:
+ * - Sliders for min and max volume values
+ * - Shows current values with labels
+ * - Provides helper text for user guidance
+ *
+ * @param minVolume Current minimum volume value
+ * @param maxVolume Current maximum volume value
+ * @param onMinChange Callback when min volume slider changes
+ * @param onMaxChange Callback when max volume slider changes
+ * @param modifier Optional modifier for the card
+ */
 @Composable
 fun VolumeRangeCard(
     minVolume: Int,
@@ -76,3 +91,16 @@ fun VolumeRangeCard(
     }
 }
 
+/**
+ * Preview for VolumeRangeCard composable.
+ */
+@Preview(showBackground = true)
+@Composable
+fun VolumeRangeCardPreview() {
+    VolumeRangeCard(
+        minVolume = 0,
+        maxVolume = 15,
+        onMinChange = {},
+        onMaxChange = {}
+    )
+}

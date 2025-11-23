@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
@@ -26,6 +27,17 @@ import com.rex50.tuneflow.domain.model.ServiceState
 import com.rex50.tuneflow.domain.model.VolumeSettings
 import kotlin.math.min
 
+/**
+ * Displays a speedometer-style card showing current acceleration and volume.
+ *
+ * The card includes:
+ * - A semi-circular gauge showing acceleration relative to configured min/max thresholds
+ * - Current acceleration value in m/s²
+ * - Current volume level
+ *
+ * @param volumeSettings Configuration containing min/max acceleration thresholds
+ * @param serviceState Current service state with acceleration and volume data
+ */
 @Composable
 fun SpeedometerCard(
     volumeSettings: VolumeSettings,
@@ -63,6 +75,22 @@ fun SpeedometerCard(
     }
 }
 
+/**
+ * Draws a semi-circular gauge (speedometer-style) to visualize a fractional value.
+ *
+ * The gauge uses a half-height canvas (width:height = 2:1) to efficiently render
+ * only the bottom semicircle needed for the speedometer visualization.
+ *
+ * Drawing approach:
+ * 1. Canvas is sized as width=size, height=size/2
+ * 2. Arc bounding box is a full circle positioned so only the bottom half is visible
+ * 3. Arc starts at 180° (left) and sweeps 180° clockwise to 360° (right)
+ * 4. The fraction parameter controls how much of the arc is filled with foreground color
+ *
+ * @param fraction Value between 0.0 and 1.0 representing the filled portion of the gauge
+ * @param size Width of the gauge (height will be size/2)
+ * @param modifier Optional modifier for the gauge
+ */
 @Composable
 private fun Gauge(
     fraction: Float,
@@ -127,4 +155,22 @@ private fun Gauge(
             style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
         )
     }
+}
+
+/**
+ * Preview for SpeedometerCard composable.
+ */
+@Preview(showBackground = true)
+@Composable
+fun SpeedometerCardPreview() {
+    SpeedometerCard(
+        volumeSettings = VolumeSettings(
+            minAcceleration = 0f,
+            maxAcceleration = 10f
+        ),
+        serviceState = ServiceState(
+            acceleration = 5f,
+            volume = 50
+        )
+    )
 }

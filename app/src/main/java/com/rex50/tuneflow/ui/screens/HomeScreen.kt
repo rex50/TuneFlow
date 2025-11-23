@@ -33,6 +33,20 @@ import com.rex50.tuneflow.ui.components.VolumeMappingCard
 import com.rex50.tuneflow.ui.components.VolumeRangeCard
 import kotlinx.coroutines.launch
 
+/**
+ * Main home screen for the TuneFlow app.
+ *
+ * Displays:
+ * - Speedometer gauge for acceleration
+ * - Service control card
+ * - Volume range configuration
+ * - Acceleration range configuration
+ * - Volume mapping information
+ *
+ * All sections are interactive and update via the provided [HomeScreenViewModel].
+ *
+ * @param viewModel The ViewModel providing UI state and actions
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel) {

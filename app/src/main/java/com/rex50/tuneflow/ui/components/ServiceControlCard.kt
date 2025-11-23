@@ -1,5 +1,6 @@
 package com.rex50.tuneflow.ui.components
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,21 +12,40 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
 
+/**
+ * Displays a card UI for controlling the service state.
+ *
+ * Features:
+ * - Shows service status (active/inactive)
+ * - Provides a toggle switch to enable/disable the service
+ * - Animates card padding when service is disabled
+ * - Shows a helper text for user guidance
+ *
+ * @param isServiceEnabled Current service enabled state
+ * @param onToggle Callback when the switch is toggled
+ * @param modifier Optional modifier for the card
+ */
 @Composable
 fun ServiceControlCard(
     isServiceEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Animate top padding based on service state
+    val padding by animateDpAsState(if (!isServiceEnabled) 16.dp else 0.dp)
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = padding),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
@@ -34,12 +54,14 @@ fun ServiceControlCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Title
             Text(
                 text = stringResource(R.string.service_control_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
 
+            // Status row with text and switch
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -54,6 +76,7 @@ fun ServiceControlCard(
                 Switch(checked = isServiceEnabled, onCheckedChange = onToggle)
             }
 
+            // Helper text
             Text(
                 text = stringResource(R.string.service_control_helper),
                 style = MaterialTheme.typography.bodySmall,
@@ -63,3 +86,15 @@ fun ServiceControlCard(
     }
 }
 
+/**
+ * Preview for ServiceControlCard composable.
+ */
+@Preview(showBackground = true)
+@Composable
+fun ServiceControlCardPreview() {
+    ServiceControlCard(
+        isServiceEnabled = true,
+        onToggle = {},
+        modifier = Modifier
+    )
+}

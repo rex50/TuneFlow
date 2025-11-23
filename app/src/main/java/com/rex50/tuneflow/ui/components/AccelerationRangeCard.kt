@@ -13,9 +13,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
 
+/**
+ * Displays a card UI for configuring the minimum and maximum acceleration range.
+ *
+ * Features:
+ * - Shows sliders for min and max acceleration values
+ * - Displays current values with labels
+ * - Provides helper text for user guidance
+ *
+ * @param minAcceleration Current minimum acceleration value
+ * @param maxAcceleration Current maximum acceleration value
+ * @param onMinChange Callback when min acceleration slider changes
+ * @param onMaxChange Callback when max acceleration slider changes
+ * @param modifier Optional modifier for the card
+ */
 @Composable
 fun AccelerationRangeCard(
     minAcceleration: Float,
@@ -80,4 +95,18 @@ fun AccelerationRangeCard(
             )
         }
     }
+}
+
+/**
+ * Preview for AccelerationRangeCard composable.
+ */
+@Preview(showBackground = true)
+@Composable
+fun AccelerationRangeCardPreview() {
+    AccelerationRangeCard(
+        minAcceleration = 2.5f,
+        maxAcceleration = 10f,
+        onMinChange = {},
+        onMaxChange = {}
+    )
 }
