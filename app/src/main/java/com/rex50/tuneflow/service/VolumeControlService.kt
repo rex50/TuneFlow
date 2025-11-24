@@ -100,10 +100,11 @@ class VolumeControlService : Service(), LocationListener {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             // Request location updates from GPS provider
+            // Using 2-second intervals with 5-meter threshold for battery efficiency
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                1000L, // Update every 1 second
-                0f,    // No minimum distance
+                2000L, // Update every 2 seconds
+                5f,    // Minimum distance of 5 meters between updates
                 this
             )
         }
