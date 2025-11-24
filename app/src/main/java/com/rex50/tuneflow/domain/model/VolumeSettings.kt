@@ -32,7 +32,9 @@ enum class AccelerationUnit {
     }
 
     /**
-     * Convert from m/s² to this unit's representation
+     * Convert from m/s (speed) to this unit's representation
+     * Note: Method name retained as convertFromMps2 for API compatibility,
+     * but now converts speed values (m/s) rather than acceleration (m/s²)
      */
     fun convertFromMps2(valueInMps2: Float): Float = when (this) {
         METERS_PER_SECOND_SQUARED -> valueInMps2
@@ -41,7 +43,9 @@ enum class AccelerationUnit {
     }
 
     /**
-     * Convert from this unit to m/s²
+     * Convert from this unit to m/s (speed)
+     * Note: Method name retained as convertToMps2 for API compatibility,
+     * but now converts to speed values (m/s) rather than acceleration (m/s²)
      */
     fun convertToMps2(value: Float): Float = when (this) {
         METERS_PER_SECOND_SQUARED -> value

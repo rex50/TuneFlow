@@ -18,8 +18,6 @@
     <string name="acceleration_max_label">Maximum Speed</string>
     <string name="acceleration_range_helper">Define the speed range that maps to your volume range</string>
     <string name="volume_mapping_title">Volume Mapping</string>
-    <string name="volume_mapping_min">- At %1$.1f m/s²: Volume = %2$d</string>
-    <string name="volume_mapping_max">- At %1$.1f m/s²: Volume = %2$d</string>
     <string name="volume_mapping_how_it_works">How it works:</string>
     <string name="volume_mapping_helper">The app continuously monitors the vehicle speed using GPS. As speed increases (for example when driving faster), the volume automatically adjusts within the specified range.</string>
     <string name="acceleration_value">Speed: %.2f m/s</string>
