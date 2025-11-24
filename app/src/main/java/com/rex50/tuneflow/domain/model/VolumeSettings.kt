@@ -1,10 +1,11 @@
 package com.rex50.tuneflow.domain.model
 
 /**
- * Represents the unit of measurement for acceleration/speed display.
+ * Represents the unit of measurement for speed display.
+ * Note: Name retained as AccelerationUnit for API compatibility.
  */
 enum class AccelerationUnit {
-    /** Meters per second squared - raw acceleration */
+    /** Meters per second - raw speed value from GPS */
     METERS_PER_SECOND_SQUARED,
 
     /** Kilometers per hour - speed */
@@ -85,8 +86,8 @@ enum class AccelerationUnit {
 
 data class VolumeSettings(
     val isServiceEnabled: Boolean = false,
-    val maxAcceleration: Float = 27.78f, // Default: 100 km/h in m/s²
-    val minAcceleration: Float = 1.39f, // Default: 5 km/h in m/s²
+    val maxAcceleration: Float = 27.78f, // Default: 100 km/h in m/s
+    val minAcceleration: Float = 1.39f, // Default: 5 km/h in m/s
     val maxVolumePercent: Int = 60, // Default: 60% of device max volume
     val minVolumePercent: Int = 20, // Default: 20% of device max volume
     val accelerationUnit: AccelerationUnit = AccelerationUnit.KILOMETERS_PER_HOUR
