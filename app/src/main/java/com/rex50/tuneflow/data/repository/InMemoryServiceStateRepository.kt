@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class InMemoryServiceStateRepository : ServiceStateRepository {
 
-    private val stateFlow = MutableStateFlow(ServiceState(acceleration = 0f, volume = 0))
+    private val stateFlow = MutableStateFlow(ServiceState(speed = 0f, volume = 0))
 
     override val serviceState: Flow<ServiceState> = stateFlow.asStateFlow()
 

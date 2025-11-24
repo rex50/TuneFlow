@@ -29,7 +29,7 @@ class HomeScreenViewModel @Inject constructor(
     getVolumeSettingsUseCase: GetVolumeSettingsUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ServiceState(acceleration = 0f, volume = 0))
+    private val _state = MutableStateFlow(ServiceState(speed = 0f, volume = 0))
     val state: StateFlow<ServiceState> = _state
 
     private val _volumeSettings = MutableStateFlow(VolumeSettings())
