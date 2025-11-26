@@ -34,6 +34,8 @@
     <string name="permission_gps_description">Enable GPS to detect vehicle speed</string>
     <string name="permission_notification_title">Notifications</string>
     <string name="permission_notification_description">Required for service status updates</string>
+    <string name="permission_battery_optimization_title">Battery Optimization</string>
+    <string name="permission_battery_optimization_description">Disable to ensure volume updates when screen is off</string>
     <string name="permission_button_allow">Allow</string>
     <string name="permission_button_settings">Open Settings</string>
     <string name="permission_gps_resolution_failed">Could not enable GPS automatically. Please enable it manually in settings.</string>

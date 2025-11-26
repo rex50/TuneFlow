@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -101,8 +102,9 @@ private fun PermissionRow(
         // Icon
         Icon(
             imageVector = when (requirement.type) {
-                PermissionType.GPS_ENABLED -> Icons.Default.LocationOn
                 PermissionType.POST_NOTIFICATIONS -> Icons.Default.Notifications
+                PermissionType.BATTERY_OPTIMIZATION -> Icons.Default.Settings
+                PermissionType.GPS_ENABLED -> Icons.Default.Settings
                 else -> Icons.Default.LocationOn
             },
             contentDescription = null,
@@ -169,4 +171,3 @@ private fun MissingPermissionsCardPreview() {
         onActionClick = {}
     )
 }
-

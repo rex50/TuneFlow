@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.rex50.tuneflow.R
@@ -139,7 +140,30 @@ class PermissionStatusRepositoryImpl @Inject constructor(
             )
         }
 
+        // Check Battery Optimization
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val isIgnoringBatteryOptimizations = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            powerManager.isIgnoringBatteryOptimizations(context.packageName)
+        } else {
+            // For versions below Android 6.0 (API 23), battery optimization is not applicable
+            true
+        }
+
+        statuses.add(
+            PermissionStatus(
+                type = PermissionType.BATTERY_OPTIMIZATION,
+                isGranted = isIgnoringBatteryOptimizations,
+                canRequest = false, // Cannot request battery optimization exemption directly
+                titleRes = R.string.permission_battery_optimization_title,
+                descriptionRes = R.string.permission_battery_optimization_description
+            )
+        )
+
         _permissionStatus.value = statuses
     }
-}
 
+    override fun isBatteryOptimizationDisabled(): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+    }
+}

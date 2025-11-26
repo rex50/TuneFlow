@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -31,6 +32,7 @@ import com.rex50.tuneflow.ui.theme.TuneFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -60,6 +62,13 @@ class MainActivity : ComponentActivity() {
         }
         // Refresh GPS status after result
         permissionStatusRepository.checkGpsEnabled(this)
+    }
+
+    private val batteryOptimizationLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Refresh battery optimization status after result
+        permissionStatusRepository.refreshStatus(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +124,9 @@ class MainActivity : ComponentActivity() {
                 ).show()
                 openAppSettings()
             }
+            is PermissionEvent.RequestBatteryOptimization -> {
+                requestBatteryOptimization()
+            }
         }
     }
 
@@ -158,6 +170,13 @@ class MainActivity : ComponentActivity() {
             Log.e("MainActivity", "Error requesting GPS enable", e)
             handlePermissionEvent(PermissionEvent.GpsResolutionFailed)
         }
+    }
+
+    private fun requestBatteryOptimization() {
+        val intent = Intent()
+        intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+        intent.data = "package:$packageName".toUri()
+        batteryOptimizationLauncher.launch(intent)
     }
 
     private fun openAppSettings() {

@@ -9,7 +9,8 @@ enum class PermissionType {
     FINE_LOCATION,
     COARSE_LOCATION,
     GPS_ENABLED,
-    POST_NOTIFICATIONS
+    POST_NOTIFICATIONS,
+    BATTERY_OPTIMIZATION
 }
 
 /**
@@ -39,4 +40,3 @@ sealed interface PermissionsUiState {
         val requirements: List<PermissionStatus>
     ) : PermissionsUiState
 }
-

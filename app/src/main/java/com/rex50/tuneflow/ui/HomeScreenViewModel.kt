@@ -33,6 +33,7 @@ sealed class PermissionEvent {
     data object RequestGpsEnable : PermissionEvent()
     data object OpenSettings : PermissionEvent()
     data object GpsResolutionFailed : PermissionEvent()
+    data object RequestBatteryOptimization : PermissionEvent()
 }
 
 @HiltViewModel
@@ -152,6 +153,10 @@ class HomeScreenViewModel @Inject constructor(
 
                 PermissionType.GPS_ENABLED -> {
                     permissionStatusRepository.handleEvent(PermissionEvent.RequestGpsEnable)
+                }
+
+                PermissionType.BATTERY_OPTIMIZATION -> {
+                    permissionStatusRepository.handleEvent(PermissionEvent.RequestBatteryOptimization)
                 }
             }
         }

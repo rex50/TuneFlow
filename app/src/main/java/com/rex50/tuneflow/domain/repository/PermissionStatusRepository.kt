@@ -41,5 +41,10 @@ interface PermissionStatusRepository {
      * @param activity Activity context
      */
     fun refreshStatus(activity: Activity)
-}
 
+    /**
+     * Check if battery optimization is disabled for the app
+     * @return true if battery optimization is disabled (exempted)
+     */
+    fun isBatteryOptimizationDisabled(): Boolean
+}
