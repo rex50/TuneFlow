@@ -28,15 +28,15 @@ import com.rex50.tuneflow.domain.model.VolumeSettings
 import kotlin.math.min
 
 /**
- * Displays a speedometer-style card showing current acceleration and volume.
+ * Displays a speedometer-style card showing current speed and volume.
  *
  * The card includes:
- * - A semi-circular gauge showing acceleration relative to configured min/max thresholds
- * - Current acceleration value in m/s²
+ * - A semi-circular gauge showing speed relative to configured min/max thresholds
+ * - Current speed value in selected unit (km/h, mph, or m/s)
  * - Current volume level
  *
- * @param volumeSettings Configuration containing min/max acceleration thresholds
- * @param serviceState Current service state with acceleration and volume data
+ * @param volumeSettings Configuration containing min/max speed thresholds
+ * @param serviceState Current service state with speed and volume data
  */
 @Composable
 fun SpeedometerCard(
@@ -63,16 +63,16 @@ fun SpeedometerCard(
             val minAcc = volumeSettings.minAcceleration
             val maxAcc = volumeSettings.maxAcceleration
             val normalized =
-                ((serviceState.acceleration - minAcc) / (maxAcc - minAcc)).coerceIn(0f, 1f)
+                ((serviceState.speed - minAcc) / (maxAcc - minAcc)).coerceIn(0f, 1f)
             Gauge(
                 fraction = normalized,
                 size = 200.dp
             )
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Display acceleration in selected unit
+            // Display speed in selected unit
             val unit = volumeSettings.accelerationUnit
-            val displayValue = unit.convertFromMps2(serviceState.acceleration)
+            val displayValue = unit.convertFromMps2(serviceState.speed)
             Text("%.1f %s".format(displayValue, unit.getLabel()))
             Text(stringResource(R.string.volume_value, serviceState.volume))
         }
@@ -173,7 +173,7 @@ fun SpeedometerCardPreview() {
             maxAcceleration = 10f
         ),
         serviceState = ServiceState(
-            acceleration = 5f,
+            speed = 5f,
             volume = 50
         )
     )

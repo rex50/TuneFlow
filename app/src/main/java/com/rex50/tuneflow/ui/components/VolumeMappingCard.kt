@@ -20,14 +20,14 @@ import com.rex50.tuneflow.domain.model.VolumeSettings
 import com.rex50.tuneflow.ui.theme.TuneFlowTheme
 
 /**
- * Displays a card showing how acceleration maps to volume.
+ * Displays a card showing how speed maps to volume.
  *
  * Features:
- * - Shows mapping for minimum and maximum acceleration/volume in selected unit
+ * - Shows mapping for minimum and maximum speed/volume in selected unit
  * - Explains how the mapping works
  * - Provides helper text for user guidance
  *
- * @param volumeSettings Current volume settings including acceleration unit
+ * @param volumeSettings Current volume settings including speed unit
  * @param modifier Optional modifier for the card
  */
 @Composable

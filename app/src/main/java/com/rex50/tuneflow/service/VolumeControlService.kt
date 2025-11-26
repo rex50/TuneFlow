@@ -1,5 +1,6 @@
 package com.rex50.tuneflow.service
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,12 +8,13 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.media.AudioManager
 import android.os.IBinder
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.rex50.tuneflow.MainActivity
 import com.rex50.tuneflow.R
@@ -27,10 +29,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.sqrt
 
 @AndroidEntryPoint
-class VolumeControlService : Service(), SensorEventListener {
+class VolumeControlService : Service(), LocationListener {
 
     @Inject
     lateinit var volumeSettingsRepository: VolumeSettingsRepository
@@ -38,16 +39,14 @@ class VolumeControlService : Service(), SensorEventListener {
     @Inject
     lateinit var serviceStateRepository: ServiceStateRepository
 
-    private lateinit var sensorManager: SensorManager
-    private var accelerometer: Sensor? = null
+    private lateinit var locationManager: LocationManager
     private lateinit var audioManager: AudioManager
     private lateinit var preferencesManager: PreferencesManager
 
     private val serviceScope = CoroutineScope(Dispatchers.Default + Job())
     private var currentSettings: com.rex50.tuneflow.domain.model.VolumeSettings? = null
 
-    private var lastAcceleration = 0f
-    private var currentAcceleration = 0f
+    private var lastSpeed = 0f
 
     companion object {
         private const val NOTIFICATION_ID = 1
@@ -73,8 +72,7 @@ class VolumeControlService : Service(), SensorEventListener {
     override fun onCreate() {
         super.onCreate()
 
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         preferencesManager = PreferencesManager(this)
 
@@ -90,11 +88,23 @@ class VolumeControlService : Service(), SensorEventListener {
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
 
-        accelerometer?.also { acc ->
-            sensorManager.registerListener(
+        // Check for location permissions
+        if (ActivityCompat.checkSelfPermission(
                 this,
-                acc,
-                SensorManager.SENSOR_DELAY_NORMAL
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request location updates from GPS provider
+            // Using 2-second intervals with 5-meter threshold for battery efficiency
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                1000L, // Update every 2 seconds
+                0.5f,    // Minimum distance of 5 meters between updates
+                this
             )
         }
 
@@ -103,7 +113,7 @@ class VolumeControlService : Service(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        sensorManager.unregisterListener(this)
+        locationManager.removeUpdates(this)
         serviceScope.launch {
             volumeSettingsRepository.updateServiceEnabled(false)
         }
@@ -111,52 +121,51 @@ class VolumeControlService : Service(), SensorEventListener {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onSensorChanged(event: SensorEvent?) {
-        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
-            val x = event.values[0]
-            val y = event.values[1]
-            val z = event.values[2]
+    override fun onLocationChanged(location: Location) {
+        // Get speed from GPS in m/s
+        val gpsSpeed = location.speed
 
-            // Calculate total acceleration
-            val acceleration = sqrt((x * x + y * y + z * z).toDouble()).toFloat()
+        // Apply smoothing to reduce jitter
+        val currentSpeed = (SMOOTHING_FACTOR * lastSpeed) +
+                      ((1 - SMOOTHING_FACTOR) * gpsSpeed)
+        lastSpeed = currentSpeed
 
-            // Subtract gravity (9.8 m/s²) to get device acceleration
-            val deviceAcceleration = Math.abs(acceleration - SensorManager.GRAVITY_EARTH)
-
-            // Apply smoothing to reduce jitter
-            currentAcceleration = (SMOOTHING_FACTOR * lastAcceleration) +
-                                 ((1 - SMOOTHING_FACTOR) * deviceAcceleration)
-            lastAcceleration = currentAcceleration
-
-            // Update volume based on acceleration
-            serviceScope.launch {
-                delay(UPDATE_DELAY_MS)
-                updateVolume(currentAcceleration)
-            }
+        // Update volume based on speed
+        serviceScope.launch {
+            delay(UPDATE_DELAY_MS)
+            updateVolume(currentSpeed)
         }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+    override fun onStatusChanged(provider: String?, status: Int, extras: android.os.Bundle?) {
         // Not needed for this implementation
     }
 
-    private fun updateVolume(acceleration: Float) {
+    override fun onProviderEnabled(provider: String) {
+        // Not needed for this implementation
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        // Not needed for this implementation
+    }
+
+    private fun updateVolume(speed: Float) {
         val settings = currentSettings ?: return
 
         // Get device's maximum volume level
         val maxDeviceVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 
-        // Map acceleration to volume percentage
-        val normalizedAcceleration = when {
-            acceleration <= settings.minAcceleration -> 0f
-            acceleration >= settings.maxAcceleration -> 1f
-            else -> (acceleration - settings.minAcceleration) /
+        // Map speed to volume percentage
+        val normalizedSpeed = when {
+            speed <= settings.minAcceleration -> 0f
+            speed >= settings.maxAcceleration -> 1f
+            else -> (speed - settings.minAcceleration) /
                    (settings.maxAcceleration - settings.minAcceleration)
         }
 
         // Calculate target volume as percentage of device max
         val volumePercentRange = settings.maxVolumePercent - settings.minVolumePercent
-        val targetVolumePercent = settings.minVolumePercent + (volumePercentRange * normalizedAcceleration).toInt()
+        val targetVolumePercent = settings.minVolumePercent + (volumePercentRange * normalizedSpeed).toInt()
 
         // Convert percentage to actual device volume level
         val targetVolume = (maxDeviceVolume * targetVolumePercent / 100f).toInt()
@@ -169,11 +178,11 @@ class VolumeControlService : Service(), SensorEventListener {
             0
         )
 
-        // Update notification with current acceleration and volume percentage
-        updateNotification(acceleration, targetVolumePercent)
+        // Update notification with current speed and volume percentage
+        updateNotification(speed, targetVolumePercent)
 
         serviceScope.launch {
-            serviceStateRepository.updateState(ServiceState(acceleration, targetVolumePercent))
+            serviceStateRepository.updateState(ServiceState(speed, targetVolumePercent))
         }
     }
 
@@ -184,7 +193,7 @@ class VolumeControlService : Service(), SensorEventListener {
                 "Volume Control Service",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Controls media volume based on driving acceleration"
+                description = "Controls media volume based on driving speed"
             }
 
             val notificationManager = getSystemService(NotificationManager::class.java)
@@ -203,14 +212,14 @@ class VolumeControlService : Service(), SensorEventListener {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("TuneFlow Active")
-            .setContentText("Monitoring acceleration for volume control")
+            .setContentText("Monitoring speed for volume control")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()
     }
 
-    private fun updateNotification(acceleration: Float, volumePercent: Int) {
+    private fun updateNotification(speed: Float, volumePercent: Int) {
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -221,7 +230,7 @@ class VolumeControlService : Service(), SensorEventListener {
 
         val settings = currentSettings
         val unit = settings?.accelerationUnit ?: com.rex50.tuneflow.domain.model.AccelerationUnit.METERS_PER_SECOND_SQUARED
-        val displayValue = unit.convertFromMps2(acceleration)
+        val displayValue = unit.convertFromMps2(speed)
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("TuneFlow Active")

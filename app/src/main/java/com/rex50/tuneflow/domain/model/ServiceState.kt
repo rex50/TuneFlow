@@ -1,7 +1,7 @@
 package com.rex50.tuneflow.domain.model
 
 data class ServiceState(
-    val acceleration: Float,
+    val speed: Float,
     val volume: Int
 )
 

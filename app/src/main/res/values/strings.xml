@@ -1,27 +1,42 @@
 <resources>
     <string name="app_name">Tune Flow</string>
-    <string name="app_description">Automatic volume control based on driving acceleration</string>
+    <string name="app_description">Automatic volume control based on driving speed</string>
     <string name="service_notification_title">TuneFlow Active</string>
-    <string name="service_notification_text">Monitoring acceleration for volume control</string>
+    <string name="service_notification_text">Monitoring speed for volume control</string>
     <string name="speedometer_title">Speedometer</string>
     <string name="service_control_title">Service Control</string>
     <string name="service_status_active">Service Active</string>
     <string name="service_status_inactive">Service Inactive</string>
-    <string name="service_control_helper">Enable to start monitoring acceleration and adjusting volume</string>
+    <string name="service_control_helper">Enable to start monitoring speed and adjusting volume</string>
     <string name="volume_range_title">Volume Range</string>
     <string name="volume_min_label">Minimum Volume</string>
     <string name="volume_max_label">Maximum Volume</string>
     <string name="volume_range_helper">Set the minimum and maximum media volume levels</string>
     <string name="acceleration_range_title">Acceleration Range</string>
     <string name="speed_range_title">Speed Range</string>
-    <string name="acceleration_min_label">Minimum Acceleration</string>
-    <string name="acceleration_max_label">Maximum Acceleration</string>
-    <string name="acceleration_range_helper">Define the acceleration range that maps to your volume range</string>
+    <string name="acceleration_min_label">Minimum Speed</string>
+    <string name="acceleration_max_label">Maximum Speed</string>
+    <string name="acceleration_range_helper">Define the speed range that maps to your volume range</string>
     <string name="volume_mapping_title">Volume Mapping</string>
-    <string name="volume_mapping_min">- At %1$.1f m/s²: Volume = %2$d</string>
-    <string name="volume_mapping_max">- At %1$.1f m/s²: Volume = %2$d</string>
     <string name="volume_mapping_how_it_works">How it works:</string>
-    <string name="volume_mapping_helper">The app continuously monitors the device acceleration. As acceleration increases (for example when driving faster or on rough roads), the volume automatically adjusts within the specified range.</string>
-    <string name="acceleration_value">Acceleration: %.2f m/s²</string>
+    <string name="volume_mapping_helper">The app continuously monitors the vehicle speed using GPS. As speed increases (for example when driving faster), the volume automatically adjusts within the specified range.</string>
+    <string name="acceleration_value">Speed: %.2f m/s</string>
     <string name="volume_value">Volume: %1$d</string>
+
+    <!-- Permissions -->
+    <string name="permissions_required_title">Required Permissions</string>
+    <string name="permissions_required_helper">Grant the following permissions to enable speed-based volume control</string>
+    <string name="permission_fine_location_title">Precise Location</string>
+    <string name="permission_fine_location_description">Required for accurate speed detection</string>
+    <string name="permission_coarse_location_title">Approximate Location</string>
+    <string name="permission_coarse_location_description">Required for basic location access</string>
+    <string name="permission_gps_title">GPS Enabled</string>
+    <string name="permission_gps_description">Enable GPS to detect vehicle speed</string>
+    <string name="permission_notification_title">Notifications</string>
+    <string name="permission_notification_description">Required for service status updates</string>
+    <string name="permission_battery_optimization_title">Battery Optimization</string>
+    <string name="permission_battery_optimization_description">Disable to ensure volume updates when screen is off</string>
+    <string name="permission_button_allow">Allow</string>
+    <string name="permission_button_settings">Open Settings</string>
+    <string name="permission_gps_resolution_failed">Could not enable GPS automatically. Please enable it manually in settings.</string>
 </resources>

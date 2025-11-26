@@ -1,16 +1,12 @@
 package com.rex50.tuneflow.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,31 +16,34 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
+import com.rex50.tuneflow.domain.model.PermissionsUiState
 import com.rex50.tuneflow.service.VolumeControlService
 import com.rex50.tuneflow.ui.HomeScreenViewModel
+import com.rex50.tuneflow.ui.PermissionEvent
 import com.rex50.tuneflow.ui.components.AccelerationRangeCard
+import com.rex50.tuneflow.ui.components.MissingPermissionsCard
 import com.rex50.tuneflow.ui.components.ServiceControlCard
 import com.rex50.tuneflow.ui.components.SpeedometerCard
 import com.rex50.tuneflow.ui.components.UnitSelectorCard
 import com.rex50.tuneflow.ui.components.VolumeMappingCard
 import com.rex50.tuneflow.ui.components.VolumeRangeCard
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
  * Main home screen for the TuneFlow app.
  *
  * Displays:
+ * - Missing permissions card (if any requirements not met)
  * - Speedometer gauge for acceleration
  * - Service control card
  * - Volume range configuration
@@ -54,11 +53,15 @@ import kotlinx.coroutines.launch
  * All sections are interactive and update via the provided [HomeScreenViewModel].
  *
  * @param viewModel The ViewModel providing UI state and actions
+ * @param onPermissionEvent Callback for permission-related events
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeScreenViewModel) {
+fun HomeScreen(
+    viewModel: HomeScreenViewModel
+) {
     val volumeSettings by viewModel.volumeSettings.collectAsState()
+    val permissionsState by viewModel.permissionsUiState.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -90,20 +93,32 @@ fun HomeScreen(viewModel: HomeScreenViewModel) {
                 SpeedometerCard(volumeSettings, serviceState)
             }
 
-            // Service Control Section
-            ServiceControlCard(
-                isServiceEnabled = volumeSettings.isServiceEnabled,
-                onToggle = { enabled ->
-                    viewModel.setServiceEnabled(enabled)
-                    scope.launch {
-                        if (enabled) {
-                            VolumeControlService.startService(context)
-                        } else {
-                            VolumeControlService.stopService(context)
+            // Permission/Service Control Section
+            when (val state = permissionsState) {
+                is PermissionsUiState.MissingRequirements -> {
+                    MissingPermissionsCard(
+                        missingRequirements = state.requirements,
+                        onActionClick = { permissionType ->
+                            viewModel.onPermissionAction(permissionType)
                         }
-                    }
+                    )
                 }
-            )
+                PermissionsUiState.AllGranted -> {
+                    ServiceControlCard(
+                        isServiceEnabled = volumeSettings.isServiceEnabled,
+                        onToggle = { enabled ->
+                            viewModel.setServiceEnabled(enabled)
+                            scope.launch {
+                                if (enabled) {
+                                    VolumeControlService.startService(context)
+                                } else {
+                                    VolumeControlService.stopService(context)
+                                }
+                            }
+                        }
+                    )
+                }
+            }
 
             // Volume Range Section
             VolumeRangeCard(
