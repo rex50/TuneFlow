@@ -47,7 +47,6 @@ class VolumeControlService : Service(), LocationListener {
     private var currentSettings: com.rex50.tuneflow.domain.model.VolumeSettings? = null
 
     private var lastSpeed = 0f
-    private var currentSpeed = 0f
 
     companion object {
         private const val NOTIFICATION_ID = 1
@@ -103,8 +102,8 @@ class VolumeControlService : Service(), LocationListener {
             // Using 2-second intervals with 5-meter threshold for battery efficiency
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                2000L, // Update every 2 seconds
-                5f,    // Minimum distance of 5 meters between updates
+                1000L, // Update every 2 seconds
+                0.5f,    // Minimum distance of 5 meters between updates
                 this
             )
         }
@@ -127,7 +126,7 @@ class VolumeControlService : Service(), LocationListener {
         val gpsSpeed = location.speed
 
         // Apply smoothing to reduce jitter
-        currentSpeed = (SMOOTHING_FACTOR * lastSpeed) +
+        val currentSpeed = (SMOOTHING_FACTOR * lastSpeed) +
                       ((1 - SMOOTHING_FACTOR) * gpsSpeed)
         lastSpeed = currentSpeed
 

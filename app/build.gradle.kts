@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
+    // Google Play Services Location for GPS resolution
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -3,9 +3,12 @@ package com.rex50.tuneflow.di
 import android.content.Context
 import com.rex50.tuneflow.data.PreferencesManager
 import com.rex50.tuneflow.data.repository.InMemoryServiceStateRepository
+import com.rex50.tuneflow.data.repository.PermissionStatusRepositoryImpl
+import com.rex50.tuneflow.domain.repository.PermissionStatusRepository
 import com.rex50.tuneflow.domain.repository.ServiceStateRepository
 import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
 import com.rex50.tuneflow.domain.usecase.GetVolumeSettingsUseCase
+import com.rex50.tuneflow.domain.usecase.ObservePermissionsUseCase
 import com.rex50.tuneflow.domain.usecase.ObserveServiceStateUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateAccelerationRangeUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateAccelerationUnitUseCase
@@ -68,4 +71,16 @@ object AppModule {
     fun provideUpdateAccelerationUnitUseCase(
         repository: VolumeSettingsRepository
     ): UpdateAccelerationUnitUseCase = UpdateAccelerationUnitUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun providePermissionStatusRepository(
+        @ApplicationContext context: Context
+    ): PermissionStatusRepository = PermissionStatusRepositoryImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideObservePermissionsUseCase(
+        repository: PermissionStatusRepository
+    ): ObservePermissionsUseCase = ObservePermissionsUseCase(repository)
 }
