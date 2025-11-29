@@ -1,8 +1,8 @@
 package com.rex50.tuneflow.domain.repository
 
 import android.app.Activity
+import com.rex50.tuneflow.domain.model.PermissionEvent
 import com.rex50.tuneflow.domain.model.PermissionStatus
-import com.rex50.tuneflow.ui.PermissionEvent
 import kotlinx.coroutines.flow.Flow
 
 /**

@@ -20,13 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rex50.tuneflow.domain.model.AccelerationUnit
+import com.rex50.tuneflow.domain.model.SpeedUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UnitSelectorCard(
-    selectedUnit: AccelerationUnit,
-    onUnitSelected: (AccelerationUnit) -> Unit,
+    selectedUnit: SpeedUnit,
+    onUnitSelected: (SpeedUnit) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -58,7 +58,7 @@ fun UnitSelectorCard(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    AccelerationUnit.entries.forEach { unit ->
+                    SpeedUnit.entries.forEach { unit ->
                         androidx.compose.material3.DropdownMenuItem(
                             text = { Text(unit.getDisplayName()) },
                             onClick = {

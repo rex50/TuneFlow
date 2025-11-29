@@ -22,10 +22,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.rex50.tuneflow.MainActivity
 import com.rex50.tuneflow.R
-import com.rex50.tuneflow.data.PreferencesManager
+import com.rex50.tuneflow.domain.model.Profile
 import com.rex50.tuneflow.domain.model.ServiceState
+import com.rex50.tuneflow.domain.model.SpeedUnit
 import com.rex50.tuneflow.domain.repository.ServiceStateRepository
-import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
+import com.rex50.tuneflow.domain.repository.ProfileRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -38,17 +39,16 @@ import kotlinx.coroutines.launch
 class VolumeControlService : Service(), LocationListener {
 
     @Inject
-    lateinit var volumeSettingsRepository: VolumeSettingsRepository
-
+    lateinit var profileRepository: ProfileRepository
     @Inject
     lateinit var serviceStateRepository: ServiceStateRepository
 
     private lateinit var locationManager: LocationManager
     private lateinit var audioManager: AudioManager
-    private lateinit var preferencesManager: PreferencesManager
+    private lateinit var notificationBuilder: NotificationCompat.Builder
 
     private val serviceScope = CoroutineScope(Dispatchers.Default + Job())
-    private var currentSettings: com.rex50.tuneflow.domain.model.VolumeSettings? = null
+    private var currentProfile: Profile? = null
 
     private var lastSpeed = 0f
 
@@ -86,14 +86,12 @@ class VolumeControlService : Service(), LocationListener {
 
     override fun onCreate() {
         super.onCreate()
-
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        preferencesManager = PreferencesManager(this)
 
         serviceScope.launch {
-            volumeSettingsRepository.settings.collect { settings ->
-                currentSettings = settings
+            profileRepository.getSelectedProfile().collect { profile ->
+                currentProfile = profile
             }
         }
     }
@@ -115,41 +113,49 @@ class VolumeControlService : Service(), LocationListener {
             } else {
                 startForeground(NOTIFICATION_ID, notification)
             }
+            serviceScope.launch {
+                // Update the settings
+                serviceStateRepository.updateServiceEnabled(true)
+            }
+
+            // Check for location permissions
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                // Request location updates from GPS provider
+                // Using 1-second intervals with 0.5-meter threshold for battery efficiency
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    1000L, // Update every 1 second
+                    1f,    // Minimum distance of 0.5 meters between updates
+                    this
+                )
+            }
+
+            return START_STICKY
         } catch (e: SecurityException) {
             Log.e(TAG, "Failed to start foreground service: ${e.message}", e)
+            serviceScope.launch {
+                // Update the settings
+                serviceStateRepository.updateServiceEnabled(false)
+            }
             // Stop the service if we can't start it properly
             stopSelf()
             return START_NOT_STICKY
         }
-
-        // Check for location permissions
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            // Request location updates from GPS provider
-            // Using 1-second intervals with 0.5-meter threshold for battery efficiency
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                1000L, // Update every 1 second
-                0.5f,    // Minimum distance of 0.5 meters between updates
-                this
-            )
-        }
-
-        return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
         locationManager.removeUpdates(this)
         serviceScope.launch {
-            volumeSettingsRepository.updateServiceEnabled(false)
+            serviceStateRepository.updateServiceEnabled(false)
         }
     }
 
@@ -184,22 +190,22 @@ class VolumeControlService : Service(), LocationListener {
     }
 
     private fun updateVolume(speed: Float) {
-        val settings = currentSettings ?: return
+        val profile = currentProfile ?: return
 
         // Get device's maximum volume level
         val maxDeviceVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 
         // Map speed to volume percentage
         val normalizedSpeed = when {
-            speed <= settings.minAcceleration -> 0f
-            speed >= settings.maxAcceleration -> 1f
-            else -> (speed - settings.minAcceleration) /
-                   (settings.maxAcceleration - settings.minAcceleration)
+            speed <= profile.minSpeed -> 0f
+            speed >= profile.maxSpeed -> 1f
+            else -> (speed - profile.minSpeed) /
+                   (profile.maxSpeed - profile.minSpeed)
         }
 
         // Calculate target volume as percentage of device max
-        val volumePercentRange = settings.maxVolumePercent - settings.minVolumePercent
-        val targetVolumePercent = settings.minVolumePercent + (volumePercentRange * normalizedSpeed).toInt()
+        val volumePercentRange = profile.maxVolumePercent - profile.minVolumePercent
+        val targetVolumePercent = profile.minVolumePercent + (volumePercentRange * normalizedSpeed).toInt()
 
         // Convert percentage to actual device volume level
         val targetVolume = (maxDeviceVolume * targetVolumePercent / 100f).toInt()
@@ -216,12 +222,12 @@ class VolumeControlService : Service(), LocationListener {
         updateNotification(speed, targetVolumePercent)
 
         serviceScope.launch {
-            serviceStateRepository.updateState(ServiceState(speed, targetVolumePercent))
+            serviceStateRepository.updateData(ServiceState(speed, targetVolumePercent))
         }
     }
 
     private fun createNotificationChannel() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Volume Control Service",
@@ -244,37 +250,27 @@ class VolumeControlService : Service(), LocationListener {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("TuneFlow Active")
             .setContentText("Monitoring speed for volume control")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .build()
+
+        return notificationBuilder.build()
     }
 
     private fun updateNotification(speed: Float, volumePercent: Int) {
-        val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
+        val profile = currentProfile
+        val unit = profile?.speedUnit ?: SpeedUnit.KILOMETERS_PER_HOUR
+        val displayValue = unit.convertFromMps(speed)
+
+        // Only update the content text, reuse the existing builder
+        notificationBuilder.setContentText(
+            "%.1f %s | Volume: %d%%".format(displayValue, unit.getLabel(), volumePercent)
         )
 
-        val settings = currentSettings
-        val unit = settings?.accelerationUnit ?: com.rex50.tuneflow.domain.model.AccelerationUnit.METERS_PER_SECOND_SQUARED
-        val displayValue = unit.convertFromMps2(speed)
-
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("TuneFlow Active")
-            .setContentText("%.1f %s | Volume: %d%%".format(displayValue, unit.getLabel(), volumePercent))
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentIntent(pendingIntent)
-            .setOngoing(true)
-            .build()
-
         val notificationManager = getSystemService(NotificationManager::class.java)
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
 }

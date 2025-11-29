@@ -35,9 +35,9 @@ fun VolumeMappingCard(
     volumeSettings: VolumeSettings,
     modifier: Modifier = Modifier
 ) {
-    val unit = volumeSettings.accelerationUnit
-    val minDisplayValue = unit.convertFromMps2(volumeSettings.minAcceleration)
-    val maxDisplayValue = unit.convertFromMps2(volumeSettings.maxAcceleration)
+    val unit = volumeSettings.speedUnit
+    val minDisplayValue = unit.convertFromMps(volumeSettings.minSpeed)
+    val maxDisplayValue = unit.convertFromMps(volumeSettings.maxSpeed)
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -90,8 +90,8 @@ fun VolumeMappingCard(
 private fun VolumeMappingCardPreview() {
     VolumeMappingCard(
         volumeSettings = VolumeSettings(
-            minAcceleration = 0f,
-            maxAcceleration = 10f,
+            minSpeed = 0f,
+            maxSpeed = 10f,
             minVolumePercent = 20,
             maxVolumePercent = 60
         )

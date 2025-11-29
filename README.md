@@ -2,32 +2,32 @@
 
 > 🚗💨 Your music, perfectly tuned to your speed!
 
-TuneFlow is an intelligent Android application that automatically adjusts your media volume based on device acceleration while driving. Perfect for maintaining optimal music volume as driving conditions change – because your favorite song should sound great whether you're cruising or accelerating! 🎶
+TuneFlow is an intelligent Android application that automatically adjusts your media volume based on driving speed. Perfect for maintaining optimal music volume as driving conditions change – because your favorite song should sound great whether you're cruising or accelerating! 🎶
 
 ## ✨ Features
 
-### 📡 Background Acceleration Monitoring
-- 🔄 Runs as a foreground service to continuously monitor device acceleration
-- 📱 Uses the accelerometer sensor to detect movement changes
+### 📡 Background Speed Monitoring
+- 🔄 Runs as a foreground service to continuously monitor driving speed
+- 📱 Uses GPS location to detect speed changes
 - 🎯 Applies smoothing algorithms to reduce jitter and provide stable volume adjustments
-- 🔋 Low battery impact with optimized sensor polling
+- 🔋 Low battery impact with optimized location polling
 
 ### 🔊 Customizable Volume Range
 - 🔉 Set minimum volume level (20% - 100%)
 - 🔊 Set maximum volume level (20% - 100%)
-- 📊 Volume automatically maps between these values based on acceleration
+- 📊 Volume automatically maps between these values based on speed
 - 🎚️ Percentage-based controls for intuitive adjustment
 
 ### ⚡ Configurable Speed Range
-- 🐌 Define minimum speed threshold (5 km/h)
-- 🚀 Define maximum speed threshold (up to 100 km/h)
+- 🐌 Define minimum speed threshold (5 km/h or 3 mph)
+- 🚀 Define maximum speed threshold (up to 100 km/h or 62 mph)
 - 🎛️ Fine-tune sensitivity to match your driving style
-- 🌍 Support for multiple units: **km/h**, **mph**, and **m/s²**
+- 🌍 Support for multiple units: **km/h** and **mph**
 
 ### 🎵 Smart Volume Mapping
-- 📈 Linear mapping between acceleration and volume
-- ⬇️ At minimum acceleration → minimum volume
-- ⬆️ At maximum acceleration → maximum volume
+- 📈 Linear mapping between speed and volume
+- ⬇️ At minimum speed → minimum volume
+- ⬆️ At maximum speed → maximum volume
 - 🌊 Smooth transitions between values
 - 📊 Real-time speedometer display with gauge visualization
 
@@ -125,7 +125,7 @@ Or simply click the ▶️ **Run** button in Android Studio!
 - ✅ Reactive UI with Jetpack Compose
 - ✅ Real-time speedometer gauge visualization
 - ✅ Percentage-based volume controls
-- ✅ Multiple speed unit support (km/h, mph, m/s²)
+- ✅ Multiple speed unit support (km/h, mph)
 - ✅ Smooth volume transitions
 - ✅ Low battery consumption
 - ✅ Material Design 3

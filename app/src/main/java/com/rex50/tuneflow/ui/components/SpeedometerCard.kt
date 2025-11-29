@@ -1,6 +1,7 @@
 package com.rex50.tuneflow.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,25 +24,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
-import com.rex50.tuneflow.domain.model.ServiceState
-import com.rex50.tuneflow.domain.model.VolumeSettings
+import com.rex50.tuneflow.domain.model.SpeedUnit
 import kotlin.math.min
 
 /**
- * Displays a speedometer-style card showing current speed and volume.
+ * Displays a speedometer-style card showing current speed.
  *
  * The card includes:
- * - A semi-circular gauge showing speed relative to configured min/max thresholds
+ * - A semi-circular gauge showing speed relative to max speed
  * - Current speed value in selected unit (km/h, mph, or m/s)
- * - Current volume level
  *
- * @param volumeSettings Configuration containing min/max speed thresholds
- * @param serviceState Current service state with speed and volume data
+ * @param currentSpeed Current speed in meters per second
+ * @param maxSpeed Maximum speed threshold in meters per second
+ * @param speedUnit Unit to display speed in (KMH, MPH, or MPS)
  */
 @Composable
 fun SpeedometerCard(
-    volumeSettings: VolumeSettings,
-    serviceState: ServiceState
+    currentSpeed: Float,
+    maxSpeed: Float,
+    speedUnit: SpeedUnit
 ) {
     Card(
         modifier = Modifier
@@ -60,21 +61,34 @@ fun SpeedometerCard(
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            val minAcc = volumeSettings.minAcceleration
-            val maxAcc = volumeSettings.maxAcceleration
-            val normalized =
-                ((serviceState.speed - minAcc) / (maxAcc - minAcc)).coerceIn(0f, 1f)
-            Gauge(
-                fraction = normalized,
-                size = 200.dp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Display speed in selected unit
-            val unit = volumeSettings.accelerationUnit
-            val displayValue = unit.convertFromMps2(serviceState.speed)
-            Text("%.1f %s".format(displayValue, unit.getLabel()))
-            Text(stringResource(R.string.volume_value, serviceState.volume))
+
+            val normalized = (currentSpeed / maxSpeed).coerceIn(0f, 1f)
+            Box(
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Gauge(
+                    fraction = normalized,
+                    size = 200.dp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Display speed in selected unit
+                val displayValue = speedUnit.convertFromMps(currentSpeed)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "%.1f".format(displayValue),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = speedUnit.getLabel(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }
@@ -168,13 +182,8 @@ private fun Gauge(
 @Composable
 fun SpeedometerCardPreview() {
     SpeedometerCard(
-        volumeSettings = VolumeSettings(
-            minAcceleration = 0f,
-            maxAcceleration = 10f
-        ),
-        serviceState = ServiceState(
-            speed = 5f,
-            volume = 50
-        )
+        currentSpeed = 5f,
+        maxSpeed = 10f,
+        speedUnit = SpeedUnit.KILOMETERS_PER_HOUR
     )
 }
