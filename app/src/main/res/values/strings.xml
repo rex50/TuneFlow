@@ -44,4 +44,6 @@
     <string name="tile_label_inactive">TuneFlow</string>
     <string name="tile_description_active">TuneFlow is active - tap to disable</string>
     <string name="tile_description_inactive">TuneFlow is inactive - tap to enable</string>
+    <string name="turning_on_tile_toast">Enabling TuneFlow…</string>
+    <string name="turning_off_tile_toast">Disabling TuneFlow…</string>
 </resources>

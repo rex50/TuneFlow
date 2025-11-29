@@ -21,8 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,6 +36,7 @@ class TuneFlowTileService : TileService() {
 
     override fun onStartListening() {
         super.onStartListening()
+        Log.d(Constants.LogTags.TILE_SERVICE, "onStartListening: Called")
         // Always update tile state when user views Quick Settings
         // This ensures tile reflects the actual state from repository
         updateTileState()
@@ -45,7 +44,7 @@ class TuneFlowTileService : TileService() {
 
     override fun onStopListening() {
         super.onStopListening()
-        serviceScope.cancel()
+        Log.d(Constants.LogTags.TILE_SERVICE, "onStopListening: Called")
     }
 
     override fun onClick() {
@@ -53,6 +52,8 @@ class TuneFlowTileService : TileService() {
 
         serviceScope.launch {
             val isEnabled = serviceStateRepository.isServiceEnabled.first()
+
+            Log.d(Constants.LogTags.TILE_SERVICE, "onClick: isEnabled=$isEnabled")
 
             // If trying to enable the service, check for required permissions
             if (!isEnabled) {
@@ -63,6 +64,8 @@ class TuneFlowTileService : TileService() {
                     return@launch
                 }
 
+                showToast(ContextCompat.getString(applicationContext, R.string.turning_on_tile_toast))
+
                 // Update the settings
                 serviceStateRepository.updateServiceEnabled(true)
 
@@ -72,9 +75,12 @@ class TuneFlowTileService : TileService() {
                 // Update the settings
                 serviceStateRepository.updateServiceEnabled(false)
 
+                showToast(ContextCompat.getString(applicationContext, R.string.turning_off_tile_toast))
+
                 // Use broadcast to stop service
                 sendServiceBroadcast(false)
             }
+            updateTileState()
         }
     }
 
@@ -199,25 +205,23 @@ class TuneFlowTileService : TileService() {
         }
     }
 
-    private fun updateTileState() {
-        serviceStateRepository.isServiceEnabled
-            .onEach {
-                val isEnabled = serviceStateRepository.isServiceEnabled.first()
-                val tile = qsTile ?: return@onEach
+    private fun updateTileState() = serviceScope.launch {
+        val isEnabled = serviceStateRepository.isServiceEnabled.value
+        Log.d(Constants.LogTags.TILE_SERVICE, "updateTileState: isEnabled=$isEnabled")
+        val tile = qsTile ?: return@launch
 
-                if (isEnabled) {
-                    tile.state = Tile.STATE_ACTIVE
-                    tile.label = getString(R.string.tile_label_active)
-                    tile.contentDescription = getString(R.string.tile_description_active)
-                } else {
-                    tile.state = Tile.STATE_INACTIVE
-                    tile.label = getString(R.string.tile_label_inactive)
-                    tile.contentDescription = getString(R.string.tile_description_inactive)
-                }
+        Log.d(Constants.LogTags.TILE_SERVICE, "Updating tile state to: $isEnabled")
+        if (isEnabled) {
+            tile.state = Tile.STATE_ACTIVE
+            tile.label = getString(R.string.tile_label_active)
+            tile.contentDescription = getString(R.string.tile_description_active)
+        } else {
+            tile.state = Tile.STATE_INACTIVE
+            tile.label = getString(R.string.tile_label_inactive)
+            tile.contentDescription = getString(R.string.tile_description_inactive)
+        }
 
-                // Update the tile
-                tile.updateTile()
-            }
-            .launchIn(serviceScope)
+        // Update the tile
+        tile.updateTile()
     }
 }
