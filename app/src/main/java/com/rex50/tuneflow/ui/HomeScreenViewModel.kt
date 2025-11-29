@@ -3,19 +3,18 @@ package com.rex50.tuneflow.ui
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rex50.tuneflow.domain.model.SpeedUnit
+import com.rex50.tuneflow.domain.model.PermissionEvent
 import com.rex50.tuneflow.domain.model.PermissionType
 import com.rex50.tuneflow.domain.model.PermissionsUiState
+import com.rex50.tuneflow.domain.model.Profile
 import com.rex50.tuneflow.domain.model.ServiceState
-import com.rex50.tuneflow.domain.model.VolumeSettings
 import com.rex50.tuneflow.domain.repository.PermissionStatusRepository
-import com.rex50.tuneflow.domain.usecase.GetVolumeSettingsUseCase
+import com.rex50.tuneflow.domain.usecase.GetAllProfilesUseCase
+import com.rex50.tuneflow.domain.usecase.GetSelectedProfileUseCase
+import com.rex50.tuneflow.domain.usecase.ObserveVolumeSettingsUseCase
 import com.rex50.tuneflow.domain.usecase.ObservePermissionsUseCase
 import com.rex50.tuneflow.domain.usecase.ObserveServiceStateUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateSpeedRangeUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateSpeedUnitUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateServiceEnabledUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateVolumeRangeUseCase
+import com.rex50.tuneflow.domain.usecase.SelectProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,77 +24,57 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * Events related to permission handling
- */
-sealed class PermissionEvent {
-    data class RequestPermissions(val permissions: List<String>) : PermissionEvent()
-    data object RequestGpsEnable : PermissionEvent()
-    data object OpenSettings : PermissionEvent()
-    data object GpsResolutionFailed : PermissionEvent()
-    data object RequestBatteryOptimization : PermissionEvent()
-}
-
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val updateVolumeRangeUseCase: UpdateVolumeRangeUseCase,
-    private val updateSpeedRangeUseCase: UpdateSpeedRangeUseCase,
-    private val updateServiceEnabledUseCase: UpdateServiceEnabledUseCase,
-    private val updateSpeedUnitUseCase: UpdateSpeedUnitUseCase,
     private val permissionStatusRepository: PermissionStatusRepository,
+    getAllProfilesUseCase: GetAllProfilesUseCase,
+    getSelectedProfileUseCase: GetSelectedProfileUseCase,
+    private val selectProfileUseCase: SelectProfileUseCase,
     observeServiceStateUseCase: ObserveServiceStateUseCase,
     observePermissionsUseCase: ObservePermissionsUseCase,
-    getVolumeSettingsUseCase: GetVolumeSettingsUseCase
+    observeVolumeSettingsUseCase: ObserveVolumeSettingsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ServiceState(speed = 0f, volume = 0))
     val state: StateFlow<ServiceState> = _state
 
-    private val _volumeSettings = MutableStateFlow(VolumeSettings())
-    val volumeSettings: StateFlow<VolumeSettings> = _volumeSettings
-
     private val _permissionsUiState =
         MutableStateFlow<PermissionsUiState>(PermissionsUiState.AllGranted)
     val permissionsUiState: StateFlow<PermissionsUiState> = _permissionsUiState.asStateFlow()
+
+    private val _profiles =
+        MutableStateFlow<List<Profile>>(emptyList())
+    val profiles: StateFlow<List<Profile>> = _profiles.asStateFlow()
+
+    private val _selectedProfile = MutableStateFlow<Profile?>(null)
+    val selectedProfile: StateFlow<Profile?> =
+        _selectedProfile.asStateFlow()
 
     init {
         observeServiceStateUseCase().onEach { serviceState ->
             _state.value = serviceState
         }.launchIn(viewModelScope)
 
-        // Observe datastore settings and keep a StateFlow for UI consumption
-        getVolumeSettingsUseCase().onEach { settings ->
-            _volumeSettings.value = settings
-        }.launchIn(viewModelScope)
-
         // Observe permission status
         observePermissionsUseCase().onEach { permissionState ->
             _permissionsUiState.value = permissionState
         }.launchIn(viewModelScope)
+
+        // Observe all profiles
+        getAllProfilesUseCase().onEach { profiles ->
+            _profiles.value = profiles
+        }.launchIn(viewModelScope)
+
+        // Observe selected profile
+        getSelectedProfileUseCase().onEach { profile ->
+            _selectedProfile.value = profile
+        }.launchIn(viewModelScope)
     }
 
-    fun updateMinVolume(volume: Int) {
-        viewModelScope.launch { updateVolumeRangeUseCase.updateMin(volume) }
-    }
-
-    fun updateMaxVolume(volume: Int) {
-        viewModelScope.launch { updateVolumeRangeUseCase.updateMax(volume) }
-    }
-
-    fun updateMinSpeed(value: Float) {
-        viewModelScope.launch { updateSpeedRangeUseCase.updateMin(value) }
-    }
-
-    fun updateMaxSpeed(value: Float) {
-        viewModelScope.launch { updateSpeedRangeUseCase.updateMax(value) }
-    }
-
-    fun setServiceEnabled(enabled: Boolean) {
-        viewModelScope.launch { updateServiceEnabledUseCase(enabled) }
-    }
-
-    fun updateSpeedUnit(unit: SpeedUnit) {
-        viewModelScope.launch { updateSpeedUnitUseCase(unit) }
+    fun selectProfile(profileId: Long) {
+        viewModelScope.launch {
+            selectProfileUseCase(profileId)
+        }
     }
 
     @SuppressLint("InlinedApi")

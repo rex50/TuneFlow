@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -20,19 +19,25 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import com.rex50.tuneflow.domain.repository.PermissionStatusRepository
-import com.rex50.tuneflow.ui.PermissionEvent
 import com.rex50.tuneflow.ui.screens.HomeScreen
+import com.rex50.tuneflow.ui.screens.ProfileDetailScreen
 import com.rex50.tuneflow.ui.theme.TuneFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.rex50.tuneflow.domain.model.PermissionEvent
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -80,9 +85,37 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen(
-                        viewModel = hiltViewModel()
-                    )
+                    val navController = rememberNavController()
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "home"
+                    ) {
+                        composable("home") {
+                            HomeScreen(
+                                viewModel = hiltViewModel(),
+                                onNavigateToProfileDetail = { profileId ->
+                                    navController.navigate("profile_detail/$profileId")
+                                }
+                            )
+                        }
+
+                        composable(
+                            route = "profile_detail/{profileId}",
+                            arguments = listOf(
+                                navArgument("profileId") {
+                                    type = NavType.LongType
+                                    defaultValue = 0L
+                                }
+                            )
+                        ) {
+                            ProfileDetailScreen(
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -9,12 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,15 +20,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
 import com.rex50.tuneflow.domain.model.PermissionsUiState
+import com.rex50.tuneflow.domain.model.Profile
 import com.rex50.tuneflow.service.VolumeControlService
 import com.rex50.tuneflow.ui.HomeScreenViewModel
 import com.rex50.tuneflow.ui.components.MissingPermissionsCard
+import com.rex50.tuneflow.ui.components.ProfileCard
+import com.rex50.tuneflow.ui.components.ProfilesList
 import com.rex50.tuneflow.ui.components.ServiceControlCard
-import com.rex50.tuneflow.ui.components.SpeedRangeCard
 import com.rex50.tuneflow.ui.components.SpeedometerCard
 import com.rex50.tuneflow.ui.components.UnitSelectorCard
 import com.rex50.tuneflow.ui.components.VolumeMappingCard
-import com.rex50.tuneflow.ui.components.VolumeRangeCard
 import kotlinx.coroutines.launch
 
 /**
@@ -50,15 +46,17 @@ import kotlinx.coroutines.launch
  * All sections are interactive and update via the provided [HomeScreenViewModel].
  *
  * @param viewModel The ViewModel providing UI state and actions
- * @param onPermissionEvent Callback for permission-related events
+ * @param onNavigateToProfileDetail Callback for navigating to profile detail screen
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeScreenViewModel
+    viewModel: HomeScreenViewModel,
+    onNavigateToProfileDetail: (Long) -> Unit
 ) {
-    val volumeSettings by viewModel.volumeSettings.collectAsState()
     val permissionsState by viewModel.permissionsUiState.collectAsState()
+    val profiles by viewModel.profiles.collectAsState()
+    val selectedProfile by viewModel.selectedProfile.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -85,9 +83,17 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            Spacer(modifier = Modifier.height(8.dp))
+
             // Small gauge showing current speed (matches existing styling: simple, clean)
-            AnimatedVisibility(volumeSettings.isServiceEnabled) {
-                SpeedometerCard(volumeSettings, serviceState)
+            AnimatedVisibility(selectedProfile != null) {
+                selectedProfile?.let { profile ->
+                    SpeedometerCard(
+                        currentSpeed = serviceState.speed,
+                        maxSpeed = 200f,
+                        speedUnit = profile.speedUnit
+                    )
+                }
             }
 
             // Permission/Service Control Section
@@ -103,9 +109,8 @@ fun HomeScreen(
 
                 PermissionsUiState.AllGranted -> {
                     ServiceControlCard(
-                        isServiceEnabled = volumeSettings.isServiceEnabled,
+                        isServiceEnabled = selectedProfile != null,
                         onToggle = { enabled ->
-                            viewModel.setServiceEnabled(enabled)
                             scope.launch {
                                 if (enabled) {
                                     VolumeControlService.startService(context)
@@ -118,30 +123,13 @@ fun HomeScreen(
                 }
             }
 
-            // Volume Range Section
-            VolumeRangeCard(
-                minVolume = volumeSettings.minVolumePercent,
-                maxVolume = volumeSettings.maxVolumePercent,
-                onMinChange = { viewModel.updateMinVolume(it) },
-                onMaxChange = { viewModel.updateMaxVolume(it) }
-            )
 
-            // Speed Range Section
-            SpeedRangeCard(
-                volumeSettings = volumeSettings,
-                onMinChange = { viewModel.updateMinSpeed(it) },
-                onMaxChange = { viewModel.updateMaxSpeed(it) }
-            )
-
-            // Unit Selector Section
-            UnitSelectorCard(
-                selectedUnit = volumeSettings.speedUnit,
-                onUnitSelected = { viewModel.updateSpeedUnit(it) }
-            )
-
-            // Volume Mapping Info
-            VolumeMappingCard(
-                volumeSettings = volumeSettings
+            // Profiles Section
+            ProfilesList(
+                profiles = profiles,
+                selectedProfile = selectedProfile,
+                onProfileClicked = { viewModel.selectProfile(it.id) },
+                onNavigateToProfileDetail = onNavigateToProfileDetail
             )
 
             Spacer(modifier = Modifier.height(16.dp))

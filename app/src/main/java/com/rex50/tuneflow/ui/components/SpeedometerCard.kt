@@ -23,25 +23,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.R
-import com.rex50.tuneflow.domain.model.ServiceState
-import com.rex50.tuneflow.domain.model.VolumeSettings
+import com.rex50.tuneflow.domain.model.SpeedUnit
 import kotlin.math.min
 
 /**
- * Displays a speedometer-style card showing current speed and volume.
+ * Displays a speedometer-style card showing current speed.
  *
  * The card includes:
- * - A semi-circular gauge showing speed relative to configured min/max thresholds
+ * - A semi-circular gauge showing speed relative to max speed
  * - Current speed value in selected unit (km/h, mph, or m/s)
- * - Current volume level
  *
- * @param volumeSettings Configuration containing min/max speed thresholds
- * @param serviceState Current service state with speed and volume data
+ * @param currentSpeed Current speed in meters per second
+ * @param maxSpeed Maximum speed threshold in meters per second
+ * @param speedUnit Unit to display speed in (KMH, MPH, or MPS)
  */
 @Composable
 fun SpeedometerCard(
-    volumeSettings: VolumeSettings,
-    serviceState: ServiceState
+    currentSpeed: Float,
+    maxSpeed: Float,
+    speedUnit: SpeedUnit
 ) {
     Card(
         modifier = Modifier
@@ -60,10 +60,8 @@ fun SpeedometerCard(
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            val minSpeed = volumeSettings.minSpeed
-            val maxSpeed = volumeSettings.maxSpeed
-            val normalized =
-                ((serviceState.speed - minSpeed) / (maxSpeed - minSpeed)).coerceIn(0f, 1f)
+
+            val normalized = (currentSpeed / maxSpeed).coerceIn(0f, 1f)
             Gauge(
                 fraction = normalized,
                 size = 200.dp
@@ -71,10 +69,12 @@ fun SpeedometerCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             // Display speed in selected unit
-            val unit = volumeSettings.speedUnit
-            val displayValue = unit.convertFromMps(serviceState.speed)
-            Text("%.1f %s".format(displayValue, unit.getLabel()))
-            Text(stringResource(R.string.volume_value, serviceState.volume))
+            val displayValue = speedUnit.convertFromMps(currentSpeed)
+            Text(
+                text = "%.1f %s".format(displayValue, speedUnit.getLabel()),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -168,13 +168,8 @@ private fun Gauge(
 @Composable
 fun SpeedometerCardPreview() {
     SpeedometerCard(
-        volumeSettings = VolumeSettings(
-            minSpeed = 0f,
-            maxSpeed = 10f
-        ),
-        serviceState = ServiceState(
-            speed = 5f,
-            volume = 50
-        )
+        currentSpeed = 5f,
+        maxSpeed = 10f,
+        speedUnit = SpeedUnit.KILOMETERS_PER_HOUR
     )
 }

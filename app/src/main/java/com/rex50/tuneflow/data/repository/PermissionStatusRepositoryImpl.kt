@@ -10,10 +10,10 @@ import android.os.PowerManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.rex50.tuneflow.R
+import com.rex50.tuneflow.domain.model.PermissionEvent
 import com.rex50.tuneflow.domain.model.PermissionStatus
 import com.rex50.tuneflow.domain.model.PermissionType
 import com.rex50.tuneflow.domain.repository.PermissionStatusRepository
-import com.rex50.tuneflow.ui.PermissionEvent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
