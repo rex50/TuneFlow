@@ -2,11 +2,7 @@ package com.rex50.tuneflow.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,33 +38,11 @@ fun ProfileDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (profile?.id == 0L) "New Profile" else "Edit Profile"
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    // Save button
-                    Button(
-                        onClick = { viewModel.saveProfile() },
-                        enabled = !uiState.isLoading
-                    ) {
-                        Text(text = "Save")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            ProfileHeader(
+                isNewProfile = uiState.isNewProfile,
+                onNavigateBack = onNavigateBack,
+                viewModel = viewModel,
+                isLoading = uiState.isLoading
             )
         }
     ) { paddingValues ->
@@ -82,99 +56,101 @@ fun ProfileDetailScreen(
                 CircularProgressIndicator()
             }
         } else {
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
-                // Profile Name TextField
-                OutlinedTextField(
-                    value = profile.name,
-                    onValueChange = { viewModel.updateName(it) },
-                    label = { Text("Profile Name") },
-                    placeholder = { Text("e.g., City, Highway") },
-                    isError = uiState.nameError != null,
-                    supportingText = {
-                        val errorMsg = uiState.nameError
-                        if (errorMsg != null) {
-                            Text(
-                                text = errorMsg,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        } else {
-                            Text("Max 20 characters, must be unique")
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    enabled = !uiState.isLoading
-                )
-
-                // Color Selector
-                ColorSelector(
-                    selectedColor = profile.colorHex,
-                    onColorSelected = { viewModel.updateColor(it) }
-                )
-
-                // Volume Mapping Card
-                VolumeMappingCard(
-                    volumeSettings = VolumeSettings(
-                        minSpeed = profile.minSpeed,
-                        maxSpeed = profile.maxSpeed,
-                        speedUnit = profile.speedUnit,
-                        minVolumePercent = profile.minVolumePercent,
-                        maxVolumePercent = profile.maxVolumePercent
+                item {
+                    // Profile Name TextField
+                    ProfileNameField(
+                        value = profile.name,
+                        onUpdateName = { viewModel.updateName(it) },
+                        isLoading = uiState.isLoading,
+                        error = uiState.nameError
                     )
-                )
+                }
 
-                // Speed Range Card
-                SpeedRangeCard(
-                    volumeSettings = VolumeSettings(
-                        minSpeed = profile.minSpeed,
-                        maxSpeed = profile.maxSpeed,
-                        speedUnit = profile.speedUnit,
-                        minVolumePercent = profile.minVolumePercent,
-                        maxVolumePercent = profile.maxVolumePercent
-                    ),
-                    onMinChange = { viewModel.updateMinSpeed(it) },
-                    onMaxChange = { viewModel.updateMaxSpeed(it) }
-                )
+                item {
+                    // Color Selector
+                    ColorSelector(
+                        selectedColor = profile.colorHex,
+                        onColorSelected = { viewModel.updateColor(it) }
+                    )
+                }
 
-                // Volume Range Card
-                VolumeRangeCard(
-                    minVolume = profile.minVolumePercent,
-                    maxVolume = profile.maxVolumePercent,
-                    onMinChange = { viewModel.updateMinVolume(it) },
-                    onMaxChange = { viewModel.updateMaxVolume(it) }
-                )
+                item {
+                    // Volume Mapping Card
+                    VolumeMappingCard(
+                        volumeSettings = VolumeSettings(
+                            minSpeed = profile.minSpeed,
+                            maxSpeed = profile.maxSpeed,
+                            speedUnit = profile.speedUnit,
+                            minVolumePercent = profile.minVolumePercent,
+                            maxVolumePercent = profile.maxVolumePercent
+                        )
+                    )
+                }
 
-                // Unit Selector Card
-                UnitSelectorCard(
-                    selectedUnit = profile.speedUnit,
-                    onUnitSelected = { viewModel.updateSpeedUnit(it) }
-                )
+                item {
+                    // Speed Range Card
+                    SpeedRangeCard(
+                        volumeSettings = VolumeSettings(
+                            minSpeed = profile.minSpeed,
+                            maxSpeed = profile.maxSpeed,
+                            speedUnit = profile.speedUnit,
+                            minVolumePercent = profile.minVolumePercent,
+                            maxVolumePercent = profile.maxVolumePercent
+                        ),
+                        onMinChange = { viewModel.updateMinSpeed(it) },
+                        onMaxChange = { viewModel.updateMaxSpeed(it) }
+                    )
+                }
+
+                item {
+                    // Volume Range Card
+                    VolumeRangeCard(
+                        minVolume = profile.minVolumePercent,
+                        maxVolume = profile.maxVolumePercent,
+                        onMinChange = { viewModel.updateMinVolume(it) },
+                        onMaxChange = { viewModel.updateMaxVolume(it) }
+                    )
+                }
+
+                item {
+                    // Unit Selector Card
+                    UnitSelectorCard(
+                        selectedUnit = profile.speedUnit,
+                        onUnitSelected = { viewModel.updateSpeedUnit(it) }
+                    )
+                }
 
                 // Delete Button (only for existing profiles)
                 if (profile.id > 0) {
-                    Button(
-                        onClick = { showDeleteDialog = true },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        ),
-                        enabled = !uiState.isLoading
-                    ) {
-                        Text("Delete Profile")
+                    item {
+                        Button(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            ),
+                            enabled = !uiState.isLoading
+                        ) {
+                            Text("Delete Profile")
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
@@ -203,4 +179,3 @@ fun ProfileDetailScreen(
         )
     }
 }
-
