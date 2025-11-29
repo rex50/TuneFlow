@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rex50.tuneflow.domain.model.VolumeSettings
 import com.rex50.tuneflow.ui.components.*
 import com.rex50.tuneflow.ui.viewmodel.ProfileDetailViewModel
@@ -26,7 +27,7 @@ fun ProfileDetailScreen(
     onNavigateBack: () -> Unit,
     viewModel: ProfileDetailViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val profile = uiState.profile
 
     // Handle navigation on save/delete
