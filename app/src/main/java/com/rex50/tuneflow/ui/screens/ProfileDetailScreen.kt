@@ -1,12 +1,14 @@
 package com.rex50.tuneflow.ui.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,11 +27,17 @@ fun ProfileDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val profile = uiState.profile
+    val context = LocalContext.current
 
     // Handle navigation on save/delete
     LaunchedEffect(uiState.isSaved, uiState.isDeleted) {
         Log.d(">>>>", "ProfileDetailScreen: ${uiState.isSaved}, ${uiState.isDeleted}")
         if (uiState.isSaved || uiState.isDeleted) {
+            Toast.makeText(
+                context,
+                if (uiState.isSaved) "Profile saved successfully" else "Profile deleted successfully",
+                Toast.LENGTH_SHORT
+            ).show()
             onNavigateBack()
         }
     }

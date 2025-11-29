@@ -32,7 +32,7 @@ class ProfileDetailViewModel @Inject constructor(
     private val saveProfileUseCase: SaveProfileUseCase,
     private val deleteProfileUseCase: DeleteProfileUseCase,
     private val validateProfileNameUseCase: ValidateProfileNameUseCase,
-    private val getAllProfilesUseCase: GetAllProfilesUseCase
+    private val getProfileByIdUseCase: GetProfileByIdUseCase
 ) : ViewModel() {
 
     private val profileId: Long = savedStateHandle.toRoute<ProfileDetail>().profileId
@@ -67,17 +67,24 @@ class ProfileDetailViewModel @Inject constructor(
     private fun loadProfile(id: Long) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            getAllProfilesUseCase()
-                .first()
-                .find { it.id == id }
-                ?.let { profile ->
-                    _uiState.update {
-                        ProfileDetailUiState(
-                            profile = profile,
-                            isLoading = false
-                        )
-                    }
+            val profile = getProfileByIdUseCase(id)
+            if (profile != null) {
+                _uiState.update {
+                    ProfileDetailUiState(
+                        profile = profile,
+                        isLoading = false,
+                        isNewProfile = false
+                    )
                 }
+            } else {
+                // Profile not found, handle error
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        nameError = "Profile not found"
+                    )
+                }
+            }
         }
     }
 
