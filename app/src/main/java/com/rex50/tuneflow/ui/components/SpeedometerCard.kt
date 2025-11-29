@@ -1,6 +1,7 @@
 package com.rex50.tuneflow.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -62,19 +63,32 @@ fun SpeedometerCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             val normalized = (currentSpeed / maxSpeed).coerceIn(0f, 1f)
-            Gauge(
-                fraction = normalized,
-                size = 200.dp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Display speed in selected unit
-            val displayValue = speedUnit.convertFromMps(currentSpeed)
-            Text(
-                text = "%.1f %s".format(displayValue, speedUnit.getLabel()),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
+            Box(
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Gauge(
+                    fraction = normalized,
+                    size = 200.dp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Display speed in selected unit
+                val displayValue = speedUnit.convertFromMps(currentSpeed)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "%.1f".format(displayValue),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = speedUnit.getLabel(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }

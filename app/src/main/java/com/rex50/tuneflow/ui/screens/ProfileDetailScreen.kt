@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rex50.tuneflow.R
 import com.rex50.tuneflow.domain.model.VolumeSettings
 import com.rex50.tuneflow.ui.components.*
 import com.rex50.tuneflow.ui.viewmodel.ProfileDetailViewModel
@@ -35,7 +36,10 @@ fun ProfileDetailScreen(
         if (uiState.isSaved || uiState.isDeleted) {
             Toast.makeText(
                 context,
-                if (uiState.isSaved) "Profile saved successfully" else "Profile deleted successfully",
+                if (uiState.isSaved)
+                    context.getString(R.string.profile_saved_successfully)
+                else
+                    context.getString(R.string.profile_deleted_successfully),
                 Toast.LENGTH_SHORT
             ).show()
             onNavigateBack()

@@ -3,7 +3,7 @@
     <string name="app_description">Automatic volume control based on driving speed</string>
     <string name="service_notification_title">TuneFlow Active</string>
     <string name="service_notification_text">Monitoring speed for volume control</string>
-    <string name="speedometer_title">Speedometer</string>
+    <string name="speedometer_title">Current Speed</string>
     <string name="service_control_title">Service Control</string>
     <string name="service_status_active">Service Active</string>
     <string name="service_status_inactive">Service Inactive</string>
@@ -46,4 +46,6 @@
     <string name="tile_description_inactive">TuneFlow is inactive - tap to enable</string>
     <string name="turning_on_tile_toast">Enabling TuneFlow…</string>
     <string name="turning_off_tile_toast">Disabling TuneFlow…</string>
+    <string name="profile_saved_successfully">Profile saved successfully</string>
+    <string name="profile_deleted_successfully">Profile deleted successfully</string>
 </resources>
