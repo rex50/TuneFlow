@@ -1,5 +1,6 @@
 package com.rex50.tuneflow.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +31,7 @@ fun ProfileDetailScreen(
 
     // Handle navigation on save/delete
     LaunchedEffect(uiState.isSaved, uiState.isDeleted) {
+        Log.d(">>>>", "ProfileDetailScreen: ${uiState.isSaved}, ${uiState.isDeleted}")
         if (uiState.isSaved || uiState.isDeleted) {
             onNavigateBack()
         }

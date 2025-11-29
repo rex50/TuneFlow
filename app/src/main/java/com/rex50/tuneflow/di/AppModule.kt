@@ -1,7 +1,6 @@
 package com.rex50.tuneflow.di
 
 import android.content.Context
-import com.rex50.tuneflow.data.PreferencesManager
 import com.rex50.tuneflow.data.local.AppDatabase
 import com.rex50.tuneflow.data.local.dao.ProfileDao
 import com.rex50.tuneflow.data.repository.InMemoryServiceStateRepository
@@ -10,7 +9,6 @@ import com.rex50.tuneflow.data.repository.ProfileRepositoryImpl
 import com.rex50.tuneflow.domain.repository.PermissionStatusRepository
 import com.rex50.tuneflow.domain.repository.ProfileRepository
 import com.rex50.tuneflow.domain.repository.ServiceStateRepository
-import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
 import com.rex50.tuneflow.domain.usecase.*
 import dagger.Module
 import dagger.Provides
@@ -22,12 +20,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    @Provides
-    @Singleton
-    fun provideVolumeSettingsRepository(
-        @ApplicationContext context: Context
-    ): VolumeSettingsRepository = PreferencesManager(context)
 
     @Provides
     @Singleton
@@ -51,43 +43,6 @@ object AppModule {
     fun provideProfileRepository(profileDao: ProfileDao): ProfileRepository {
         return ProfileRepositoryImpl(profileDao)
     }
-
-    // Provide domain use-cases
-    @Provides
-    @Singleton
-    fun provideGetVolumeSettingsUseCase(
-        repository: VolumeSettingsRepository
-    ): ObserveVolumeSettingsUseCase = ObserveVolumeSettingsUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideUpdateVolumeRangeUseCase(
-        repository: VolumeSettingsRepository
-    ): UpdateVolumeRangeUseCase = UpdateVolumeRangeUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideUpdateSpeedRangeUseCase(
-        repository: VolumeSettingsRepository
-    ): UpdateSpeedRangeUseCase = UpdateSpeedRangeUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideUpdateServiceEnabledUseCase(
-        repository: VolumeSettingsRepository
-    ): UpdateServiceEnabledUseCase = UpdateServiceEnabledUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideObserveServiceStateUseCase(
-        repository: ServiceStateRepository
-    ): ObserveServiceStateUseCase = ObserveServiceStateUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideUpdateSpeedUnitUseCase(
-        repository: VolumeSettingsRepository
-    ): UpdateSpeedUnitUseCase = UpdateSpeedUnitUseCase(repository)
 
     @Provides
     @Singleton
@@ -117,9 +72,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSelectProfileUseCase(
-        profileRepository: ProfileRepository,
-        volumeSettingsRepository: VolumeSettingsRepository
-    ): SelectProfileUseCase = SelectProfileUseCase(profileRepository, volumeSettingsRepository)
+        profileRepository: ProfileRepository
+    ): SelectProfileUseCase = SelectProfileUseCase(profileRepository)
 
     @Provides
     @Singleton

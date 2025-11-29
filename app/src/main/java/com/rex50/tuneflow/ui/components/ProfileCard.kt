@@ -184,6 +184,6 @@ private fun ProfileCardPreview() {
             onEditClick = {}
         )
     }
-    
+
 }
 

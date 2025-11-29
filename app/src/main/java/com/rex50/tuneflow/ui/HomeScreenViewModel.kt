@@ -9,12 +9,12 @@ import com.rex50.tuneflow.domain.model.PermissionsUiState
 import com.rex50.tuneflow.domain.model.Profile
 import com.rex50.tuneflow.domain.model.ServiceState
 import com.rex50.tuneflow.domain.repository.PermissionStatusRepository
+import com.rex50.tuneflow.domain.repository.ServiceStateRepository
 import com.rex50.tuneflow.domain.usecase.GetAllProfilesUseCase
 import com.rex50.tuneflow.domain.usecase.GetSelectedProfileUseCase
-import com.rex50.tuneflow.domain.usecase.ObserveVolumeSettingsUseCase
 import com.rex50.tuneflow.domain.usecase.ObservePermissionsUseCase
-import com.rex50.tuneflow.domain.usecase.ObserveServiceStateUseCase
 import com.rex50.tuneflow.domain.usecase.SelectProfileUseCase
+import com.rex50.tuneflow.service.VolumeControlService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,13 +30,14 @@ class HomeScreenViewModel @Inject constructor(
     getAllProfilesUseCase: GetAllProfilesUseCase,
     getSelectedProfileUseCase: GetSelectedProfileUseCase,
     private val selectProfileUseCase: SelectProfileUseCase,
-    observeServiceStateUseCase: ObserveServiceStateUseCase,
-    observePermissionsUseCase: ObservePermissionsUseCase,
-    observeVolumeSettingsUseCase: ObserveVolumeSettingsUseCase
+    private val serviceRepository: ServiceStateRepository,
+    observePermissionsUseCase: ObservePermissionsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ServiceState(speed = 0f, volume = 0))
     val state: StateFlow<ServiceState> = _state
+
+    val isServiceEnabled: StateFlow<Boolean> = serviceRepository.isServiceEnabled
 
     private val _permissionsUiState =
         MutableStateFlow<PermissionsUiState>(PermissionsUiState.AllGranted)
@@ -51,7 +52,7 @@ class HomeScreenViewModel @Inject constructor(
         _selectedProfile.asStateFlow()
 
     init {
-        observeServiceStateUseCase().onEach { serviceState ->
+        serviceRepository.dataUpdates.onEach { serviceState ->
             _state.value = serviceState
         }.launchIn(viewModelScope)
 

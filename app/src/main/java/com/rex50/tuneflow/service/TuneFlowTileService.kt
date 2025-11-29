@@ -12,7 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.rex50.tuneflow.R
-import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
+import com.rex50.tuneflow.domain.repository.ServiceStateRepository
 import com.rex50.tuneflow.ui.ServiceTrampolineActivity
 import com.rex50.tuneflow.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,18 +30,10 @@ import javax.inject.Inject
 class TuneFlowTileService : TileService() {
 
     @Inject
-    lateinit var volumeSettingsRepository: VolumeSettingsRepository
+    lateinit var serviceStateRepository: ServiceStateRepository
 
-    private var serviceScope: CoroutineScope? = null
-
-    override fun onCreate() {
-        super.onCreate()
-        serviceScope = CoroutineScope(Dispatchers.Main + Job())
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        serviceScope?.cancel()
+    private val serviceScope: CoroutineScope by lazy {
+        CoroutineScope(Dispatchers.Main + Job())
     }
 
     override fun onStartListening() {
@@ -49,25 +43,19 @@ class TuneFlowTileService : TileService() {
         updateTileState()
     }
 
-    override fun onTileAdded() {
-        super.onTileAdded()
-        updateTileState()
-    }
-
-    override fun onTileRemoved() {
-        super.onTileRemoved()
-        // Optional: Stop service when tile is removed
+    override fun onStopListening() {
+        super.onStopListening()
+        serviceScope.cancel()
     }
 
     override fun onClick() {
         super.onClick()
 
-        serviceScope?.launch {
-            val currentSettings = volumeSettingsRepository.settings.first()
-            val newState = !currentSettings.isServiceEnabled
+        serviceScope.launch {
+            val isEnabled = serviceStateRepository.isServiceEnabled.first()
 
             // If trying to enable the service, check for required permissions
-            if (newState) {
+            if (!isEnabled) {
                 if (!hasRequiredPermissions()) {
                     // Show toast and keep service disabled
                     showToast(Constants.Messages.PERMISSION_REQUIRED)
@@ -76,20 +64,17 @@ class TuneFlowTileService : TileService() {
                 }
 
                 // Update the settings
-                volumeSettingsRepository.updateServiceEnabled(newState)
+                serviceStateRepository.updateServiceEnabled(true)
 
                 // Use broadcast to start service - works smoothly without activity launch
                 sendServiceBroadcast(true)
             } else {
                 // Update the settings
-                volumeSettingsRepository.updateServiceEnabled(newState)
+                serviceStateRepository.updateServiceEnabled(false)
 
                 // Use broadcast to stop service
                 sendServiceBroadcast(false)
             }
-
-            // Update the tile to reflect new state
-            updateTileState()
         }
     }
 
@@ -209,29 +194,30 @@ class TuneFlowTileService : TileService() {
     }
 
     private fun showToast(message: String) {
-        serviceScope?.launch(Dispatchers.Main) {
+        serviceScope.launch {
             Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
         }
     }
 
     private fun updateTileState() {
-        serviceScope?.launch {
-            val settings = volumeSettingsRepository.settings.first()
-            val tile = qsTile ?: return@launch
+        serviceStateRepository.isServiceEnabled
+            .onEach {
+                val isEnabled = serviceStateRepository.isServiceEnabled.first()
+                val tile = qsTile ?: return@onEach
 
-            if (settings.isServiceEnabled) {
-                tile.state = Tile.STATE_ACTIVE
-                tile.label = getString(R.string.tile_label_active)
-                tile.contentDescription = getString(R.string.tile_description_active)
-            } else {
-                tile.state = Tile.STATE_INACTIVE
-                tile.label = getString(R.string.tile_label_inactive)
-                tile.contentDescription = getString(R.string.tile_description_inactive)
+                if (isEnabled) {
+                    tile.state = Tile.STATE_ACTIVE
+                    tile.label = getString(R.string.tile_label_active)
+                    tile.contentDescription = getString(R.string.tile_description_active)
+                } else {
+                    tile.state = Tile.STATE_INACTIVE
+                    tile.label = getString(R.string.tile_label_inactive)
+                    tile.contentDescription = getString(R.string.tile_description_inactive)
+                }
+
+                // Update the tile
+                tile.updateTile()
             }
-
-            // Update the tile
-            tile.updateTile()
-        }
+            .launchIn(serviceScope)
     }
 }
-

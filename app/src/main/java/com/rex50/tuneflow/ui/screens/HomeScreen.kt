@@ -1,5 +1,7 @@
 package com.rex50.tuneflow.ui.screens
 
+import android.util.Log
+import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -57,6 +61,7 @@ fun HomeScreen(
     val permissionsState by viewModel.permissionsUiState.collectAsState()
     val profiles by viewModel.profiles.collectAsState()
     val selectedProfile by viewModel.selectedProfile.collectAsState()
+    val isServiceEnabled by viewModel.isServiceEnabled.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -75,64 +80,86 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Small gauge showing current speed (matches existing styling: simple, clean)
-            AnimatedVisibility(selectedProfile != null) {
-                selectedProfile?.let { profile ->
-                    SpeedometerCard(
-                        currentSpeed = serviceState.speed,
-                        maxSpeed = 200f,
-                        speedUnit = profile.speedUnit
-                    )
+            if(isServiceEnabled) {
+                item {
+                    // Small gauge showing current speed (matches existing styling: simple, clean)
+                    selectedProfile?.let { profile ->
+                        SpeedometerCard(
+                            currentSpeed = serviceState.speed,
+                            maxSpeed = 200f,
+                            speedUnit = profile.speedUnit
+                        )
+                    }
                 }
             }
 
-            // Permission/Service Control Section
-            when (val state = permissionsState) {
-                is PermissionsUiState.MissingRequirements -> {
-                    MissingPermissionsCard(
-                        missingRequirements = state.requirements,
-                        onActionClick = { permissionType ->
-                            viewModel.onPermissionAction(permissionType)
-                        }
-                    )
-                }
+            item {
+                // Permission/Service Control Section
+                when (val state = permissionsState) {
+                    is PermissionsUiState.MissingRequirements -> {
+                        MissingPermissionsCard(
+                            missingRequirements = state.requirements,
+                            onActionClick = { permissionType ->
+                                viewModel.onPermissionAction(permissionType)
+                            }
+                        )
+                    }
 
-                PermissionsUiState.AllGranted -> {
-                    ServiceControlCard(
-                        isServiceEnabled = selectedProfile != null,
-                        onToggle = { enabled ->
-                            scope.launch {
-                                if (enabled) {
-                                    VolumeControlService.startService(context)
-                                } else {
-                                    VolumeControlService.stopService(context)
+                    PermissionsUiState.AllGranted -> {
+                        ServiceControlCard(
+                            isServiceEnabled = isServiceEnabled,
+                            onToggle = { enabled ->
+                                scope.launch {
+                                    if (enabled) {
+                                        VolumeControlService.startService(context)
+                                    } else {
+                                        VolumeControlService.stopService(context)
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
 
             // Profiles Section
-            ProfilesList(
-                profiles = profiles,
-                selectedProfile = selectedProfile,
-                onProfileClicked = { viewModel.selectProfile(it.id) },
-                onNavigateToProfileDetail = onNavigateToProfileDetail
-            )
+            if (profiles.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Profiles",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                items(profiles) { profile ->
+                    ProfileCard(
+                        profile = profile,
+                        isSelected = selectedProfile?.id == profile.id,
+                        onCardClick = {
+                            viewModel.selectProfile(profile.id)
+                        },
+                        onEditClick = {
+                            Log.d(">>>>", "HomeScreen: onNavigateToProfileDetail")
+                            onNavigateToProfileDetail(profile.id)
+                        }
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }

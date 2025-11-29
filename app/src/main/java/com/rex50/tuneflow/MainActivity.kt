@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = "home"
                     ) {
                         composable("home") {
+                            Log.d(">>>>", "onCreate: profile_detail")
                             HomeScreen(
                                 viewModel = hiltViewModel(),
                                 onNavigateToProfileDetail = { profileId ->
@@ -109,6 +110,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         ) {
+                            Log.d(">>>>", "onCreate: profile_detail")
                             ProfileDetailScreen(
                                 onNavigateBack = {
                                     navController.popBackStack()
