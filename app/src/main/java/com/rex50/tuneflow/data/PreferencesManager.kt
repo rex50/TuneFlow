@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.rex50.tuneflow.domain.model.AccelerationUnit
+import com.rex50.tuneflow.domain.model.SpeedUnit
 import com.rex50.tuneflow.domain.model.VolumeSettings
 import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -21,9 +21,10 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
     companion object {
         private val MIN_VOLUME_PERCENT = intPreferencesKey("min_volume_percent")
         private val MAX_VOLUME_PERCENT = intPreferencesKey("max_volume_percent")
-        private val MIN_ACCELERATION = floatPreferencesKey("min_acceleration")
-        private val MAX_ACCELERATION = floatPreferencesKey("max_acceleration")
+        private val MIN_SPEED = floatPreferencesKey("min_speed")
+        private val MAX_SPEED = floatPreferencesKey("max_speed")
         private val IS_SERVICE_ENABLED = booleanPreferencesKey("is_service_enabled")
+        private val SPEED_UNIT = intPreferencesKey("speed_unit")
         private val ACCELERATION_UNIT = intPreferencesKey("acceleration_unit")
     }
 
@@ -31,10 +32,10 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
         VolumeSettings(
             minVolumePercent = preferences[MIN_VOLUME_PERCENT] ?: 20,
             maxVolumePercent = preferences[MAX_VOLUME_PERCENT] ?: 60,
-            minAcceleration = preferences[MIN_ACCELERATION] ?: 1.39f, // Default: 5 km/h
-            maxAcceleration = preferences[MAX_ACCELERATION] ?: 27.78f, // Default: 100 km/h
+            minSpeed = preferences[MIN_SPEED] ?: 1.39f, // Default: 5 km/h
+            maxSpeed = preferences[MAX_SPEED] ?: 27.78f, // Default: 100 km/h
             isServiceEnabled = preferences[IS_SERVICE_ENABLED] ?: false,
-            accelerationUnit = AccelerationUnit.fromOrdinal(preferences[ACCELERATION_UNIT] ?: 1) // 1 = KILOMETERS_PER_HOUR
+            speedUnit = SpeedUnit.fromOrdinal(preferences[SPEED_UNIT] ?: preferences[ACCELERATION_UNIT] ?: 1) // Migrate from old key
         )
     }
 
@@ -50,15 +51,15 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
         }
     }
 
-    override suspend fun updateMinAcceleration(acceleration: Float) {
+    override suspend fun updateMinSpeed(speed: Float) {
         context.dataStore.edit { preferences ->
-            preferences[MIN_ACCELERATION] = acceleration
+            preferences[MIN_SPEED] = speed
         }
     }
 
-    override suspend fun updateMaxAcceleration(acceleration: Float) {
+    override suspend fun updateMaxSpeed(speed: Float) {
         context.dataStore.edit { preferences ->
-            preferences[MAX_ACCELERATION] = acceleration
+            preferences[MAX_SPEED] = speed
         }
     }
 
@@ -68,9 +69,9 @@ class PreferencesManager(private val context: Context) : VolumeSettingsRepositor
         }
     }
 
-    override suspend fun updateAccelerationUnit(unit: AccelerationUnit) {
+    override suspend fun updateSpeedUnit(unit: SpeedUnit) {
         context.dataStore.edit { preferences ->
-            preferences[ACCELERATION_UNIT] = unit.ordinal
+            preferences[SPEED_UNIT] = unit.ordinal
         }
     }
 }

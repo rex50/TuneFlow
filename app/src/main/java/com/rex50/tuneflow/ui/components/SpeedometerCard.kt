@@ -60,10 +60,10 @@ fun SpeedometerCard(
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            val minAcc = volumeSettings.minAcceleration
-            val maxAcc = volumeSettings.maxAcceleration
+            val minSpeed = volumeSettings.minSpeed
+            val maxSpeed = volumeSettings.maxSpeed
             val normalized =
-                ((serviceState.speed - minAcc) / (maxAcc - minAcc)).coerceIn(0f, 1f)
+                ((serviceState.speed - minSpeed) / (maxSpeed - minSpeed)).coerceIn(0f, 1f)
             Gauge(
                 fraction = normalized,
                 size = 200.dp
@@ -71,8 +71,8 @@ fun SpeedometerCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             // Display speed in selected unit
-            val unit = volumeSettings.accelerationUnit
-            val displayValue = unit.convertFromMps2(serviceState.speed)
+            val unit = volumeSettings.speedUnit
+            val displayValue = unit.convertFromMps(serviceState.speed)
             Text("%.1f %s".format(displayValue, unit.getLabel()))
             Text(stringResource(R.string.volume_value, serviceState.volume))
         }
@@ -169,8 +169,8 @@ private fun Gauge(
 fun SpeedometerCardPreview() {
     SpeedometerCard(
         volumeSettings = VolumeSettings(
-            minAcceleration = 0f,
-            maxAcceleration = 10f
+            minSpeed = 0f,
+            maxSpeed = 10f
         ),
         serviceState = ServiceState(
             speed = 5f,

@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,15 +27,13 @@ import com.rex50.tuneflow.R
 import com.rex50.tuneflow.domain.model.PermissionsUiState
 import com.rex50.tuneflow.service.VolumeControlService
 import com.rex50.tuneflow.ui.HomeScreenViewModel
-import com.rex50.tuneflow.ui.PermissionEvent
-import com.rex50.tuneflow.ui.components.AccelerationRangeCard
 import com.rex50.tuneflow.ui.components.MissingPermissionsCard
 import com.rex50.tuneflow.ui.components.ServiceControlCard
+import com.rex50.tuneflow.ui.components.SpeedRangeCard
 import com.rex50.tuneflow.ui.components.SpeedometerCard
 import com.rex50.tuneflow.ui.components.UnitSelectorCard
 import com.rex50.tuneflow.ui.components.VolumeMappingCard
 import com.rex50.tuneflow.ui.components.VolumeRangeCard
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -88,7 +85,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Small gauge showing acceleration (matches existing styling: simple, clean)
+            // Small gauge showing current speed (matches existing styling: simple, clean)
             AnimatedVisibility(volumeSettings.isServiceEnabled) {
                 SpeedometerCard(volumeSettings, serviceState)
             }
@@ -103,6 +100,7 @@ fun HomeScreen(
                         }
                     )
                 }
+
                 PermissionsUiState.AllGranted -> {
                     ServiceControlCard(
                         isServiceEnabled = volumeSettings.isServiceEnabled,
@@ -128,17 +126,17 @@ fun HomeScreen(
                 onMaxChange = { viewModel.updateMaxVolume(it) }
             )
 
-            // Acceleration Range Section
-            AccelerationRangeCard(
+            // Speed Range Section
+            SpeedRangeCard(
                 volumeSettings = volumeSettings,
-                onMinChange = { viewModel.updateMinAcceleration(it) },
-                onMaxChange = { viewModel.updateMaxAcceleration(it) }
+                onMinChange = { viewModel.updateMinSpeed(it) },
+                onMaxChange = { viewModel.updateMaxSpeed(it) }
             )
 
             // Unit Selector Section
             UnitSelectorCard(
-                selectedUnit = volumeSettings.accelerationUnit,
-                onUnitSelected = { viewModel.updateAccelerationUnit(it) }
+                selectedUnit = volumeSettings.speedUnit,
+                onUnitSelected = { viewModel.updateSpeedUnit(it) }
             )
 
             // Volume Mapping Info

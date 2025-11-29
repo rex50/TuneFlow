@@ -3,7 +3,7 @@ package com.rex50.tuneflow.ui
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rex50.tuneflow.domain.model.AccelerationUnit
+import com.rex50.tuneflow.domain.model.SpeedUnit
 import com.rex50.tuneflow.domain.model.PermissionType
 import com.rex50.tuneflow.domain.model.PermissionsUiState
 import com.rex50.tuneflow.domain.model.ServiceState
@@ -12,8 +12,8 @@ import com.rex50.tuneflow.domain.repository.PermissionStatusRepository
 import com.rex50.tuneflow.domain.usecase.GetVolumeSettingsUseCase
 import com.rex50.tuneflow.domain.usecase.ObservePermissionsUseCase
 import com.rex50.tuneflow.domain.usecase.ObserveServiceStateUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateAccelerationRangeUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateAccelerationUnitUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateSpeedRangeUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateSpeedUnitUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateServiceEnabledUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateVolumeRangeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,9 +39,9 @@ sealed class PermissionEvent {
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val updateVolumeRangeUseCase: UpdateVolumeRangeUseCase,
-    private val updateAccelerationRangeUseCase: UpdateAccelerationRangeUseCase,
+    private val updateSpeedRangeUseCase: UpdateSpeedRangeUseCase,
     private val updateServiceEnabledUseCase: UpdateServiceEnabledUseCase,
-    private val updateAccelerationUnitUseCase: UpdateAccelerationUnitUseCase,
+    private val updateSpeedUnitUseCase: UpdateSpeedUnitUseCase,
     private val permissionStatusRepository: PermissionStatusRepository,
     observeServiceStateUseCase: ObserveServiceStateUseCase,
     observePermissionsUseCase: ObservePermissionsUseCase,
@@ -82,20 +82,20 @@ class HomeScreenViewModel @Inject constructor(
         viewModelScope.launch { updateVolumeRangeUseCase.updateMax(volume) }
     }
 
-    fun updateMinAcceleration(value: Float) {
-        viewModelScope.launch { updateAccelerationRangeUseCase.updateMin(value) }
+    fun updateMinSpeed(value: Float) {
+        viewModelScope.launch { updateSpeedRangeUseCase.updateMin(value) }
     }
 
-    fun updateMaxAcceleration(value: Float) {
-        viewModelScope.launch { updateAccelerationRangeUseCase.updateMax(value) }
+    fun updateMaxSpeed(value: Float) {
+        viewModelScope.launch { updateSpeedRangeUseCase.updateMax(value) }
     }
 
     fun setServiceEnabled(enabled: Boolean) {
         viewModelScope.launch { updateServiceEnabledUseCase(enabled) }
     }
 
-    fun updateAccelerationUnit(unit: AccelerationUnit) {
-        viewModelScope.launch { updateAccelerationUnitUseCase(unit) }
+    fun updateSpeedUnit(unit: SpeedUnit) {
+        viewModelScope.launch { updateSpeedUnitUseCase(unit) }
     }
 
     @SuppressLint("InlinedApi")

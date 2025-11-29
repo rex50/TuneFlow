@@ -10,8 +10,8 @@ import com.rex50.tuneflow.domain.repository.VolumeSettingsRepository
 import com.rex50.tuneflow.domain.usecase.GetVolumeSettingsUseCase
 import com.rex50.tuneflow.domain.usecase.ObservePermissionsUseCase
 import com.rex50.tuneflow.domain.usecase.ObserveServiceStateUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateAccelerationRangeUseCase
-import com.rex50.tuneflow.domain.usecase.UpdateAccelerationUnitUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateSpeedRangeUseCase
+import com.rex50.tuneflow.domain.usecase.UpdateSpeedUnitUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateServiceEnabledUseCase
 import com.rex50.tuneflow.domain.usecase.UpdateVolumeRangeUseCase
 import dagger.Module
@@ -50,9 +50,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUpdateAccelerationRangeUseCase(
+    fun provideUpdateSpeedRangeUseCase(
         repository: VolumeSettingsRepository
-    ): UpdateAccelerationRangeUseCase = UpdateAccelerationRangeUseCase(repository)
+    ): UpdateSpeedRangeUseCase = UpdateSpeedRangeUseCase(repository)
 
     @Provides
     @Singleton
@@ -68,9 +68,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUpdateAccelerationUnitUseCase(
+    fun provideUpdateSpeedUnitUseCase(
         repository: VolumeSettingsRepository
-    ): UpdateAccelerationUnitUseCase = UpdateAccelerationUnitUseCase(repository)
+    ): UpdateSpeedUnitUseCase = UpdateSpeedUnitUseCase(repository)
 
     @Provides
     @Singleton

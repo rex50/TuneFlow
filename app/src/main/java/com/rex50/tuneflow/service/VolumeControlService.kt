@@ -157,10 +157,10 @@ class VolumeControlService : Service(), LocationListener {
 
         // Map speed to volume percentage
         val normalizedSpeed = when {
-            speed <= settings.minAcceleration -> 0f
-            speed >= settings.maxAcceleration -> 1f
-            else -> (speed - settings.minAcceleration) /
-                   (settings.maxAcceleration - settings.minAcceleration)
+            speed <= settings.minSpeed -> 0f
+            speed >= settings.maxSpeed -> 1f
+            else -> (speed - settings.minSpeed) /
+                   (settings.maxSpeed - settings.minSpeed)
         }
 
         // Calculate target volume as percentage of device max
@@ -229,8 +229,8 @@ class VolumeControlService : Service(), LocationListener {
         )
 
         val settings = currentSettings
-        val unit = settings?.accelerationUnit ?: com.rex50.tuneflow.domain.model.AccelerationUnit.METERS_PER_SECOND_SQUARED
-        val displayValue = unit.convertFromMps2(speed)
+        val unit = settings?.speedUnit ?: com.rex50.tuneflow.domain.model.SpeedUnit.KILOMETERS_PER_HOUR
+        val displayValue = unit.convertFromMps(speed)
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("TuneFlow Active")
