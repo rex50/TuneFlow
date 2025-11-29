@@ -1,18 +1,18 @@
 package com.rex50.tuneflow.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.rex50.tuneflow.domain.model.Profile
 import com.rex50.tuneflow.domain.model.SpeedUnit
 import com.rex50.tuneflow.domain.usecase.*
+import com.rex50.tuneflow.ui.navigation.ProfileDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class ProfileDetailViewModel @Inject constructor(
     private val getAllProfilesUseCase: GetAllProfilesUseCase
 ) : ViewModel() {
 
-    private val profileId: Long = savedStateHandle.get<Long>("profileId") ?: 0L
+    private val profileId: Long = savedStateHandle.toRoute<ProfileDetail>().profileId
 
     private val _uiState = MutableStateFlow(ProfileDetailUiState())
     val uiState: StateFlow<ProfileDetailUiState> = _uiState.asStateFlow()
@@ -66,11 +66,11 @@ class ProfileDetailViewModel @Inject constructor(
 
     private fun loadProfile(id: Long) {
         _uiState.update { it.copy(isLoading = true) }
-
-        getAllProfilesUseCase()
-            .onEach { profiles ->
-                val profile = profiles.find { it.id == id }
-                if (profile != null) {
+        viewModelScope.launch {
+            getAllProfilesUseCase()
+                .first()
+                .find { it.id == id }
+                ?.let { profile ->
                     _uiState.update {
                         ProfileDetailUiState(
                             profile = profile,
@@ -78,8 +78,7 @@ class ProfileDetailViewModel @Inject constructor(
                         )
                     }
                 }
-            }
-            .launchIn(viewModelScope)
+        }
     }
 
     fun updateName(name: String) {

@@ -22,8 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -38,6 +36,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
 import com.rex50.tuneflow.domain.model.PermissionEvent
+import com.rex50.tuneflow.ui.navigation.Home
+import com.rex50.tuneflow.ui.navigation.NavigationAnimations
+import com.rex50.tuneflow.ui.navigation.ProfileDetail
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -87,29 +88,27 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
+                    val transitions = NavigationAnimations.fadeSlideAnimation()
+
                     NavHost(
                         navController = navController,
-                        startDestination = "home"
+                        startDestination = Home,
+                        enterTransition = transitions.enterTransition,
+                        exitTransition = transitions.exitTransition,
+                        popEnterTransition = transitions.popEnterTransition,
+                        popExitTransition = transitions.popExitTransition
                     ) {
-                        composable("home") {
-                            Log.d(">>>>", "onCreate: profile_detail")
+                        composable<Home> {
+                            Log.d(">>>>", "onCreate: home")
                             HomeScreen(
                                 viewModel = hiltViewModel(),
                                 onNavigateToProfileDetail = { profileId ->
-                                    navController.navigate("profile_detail/$profileId")
+                                    navController.navigate(ProfileDetail(profileId))
                                 }
                             )
                         }
 
-                        composable(
-                            route = "profile_detail/{profileId}",
-                            arguments = listOf(
-                                navArgument("profileId") {
-                                    type = NavType.LongType
-                                    defaultValue = 0L
-                                }
-                            )
-                        ) {
+                        composable<ProfileDetail> {
                             Log.d(">>>>", "onCreate: profile_detail")
                             ProfileDetailScreen(
                                 onNavigateBack = {

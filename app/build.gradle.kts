@@ -2,24 +2,21 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
 }
-
 android {
     namespace = "com.rex50.tuneflow"
     compileSdk = 36
-
     defaultConfig {
         applicationId = "com.rex50.tuneflow"
         minSdk = 24
         targetSdk = 36
         versionCode = 2
         versionName = "1.0.1"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -40,9 +37,7 @@ android {
         compose = true
     }
 }
-
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -57,20 +52,16 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-
+    ksp(libs.hilt.compiler)
     // Room Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-
-    // Navigation Compose
+    ksp(libs.androidx.room.compiler)
+    // Navigation Compose with Kotlin Serialization
     implementation(libs.androidx.navigation.compose)
-
+    implementation(libs.kotlinx.serialization.json)
     // Google Play Services Location for GPS resolution
     implementation(libs.play.services.location)
-
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
