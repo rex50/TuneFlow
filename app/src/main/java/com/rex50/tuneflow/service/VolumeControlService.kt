@@ -9,13 +9,17 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.media.AudioManager
+import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import com.rex50.tuneflow.MainActivity
 import com.rex50.tuneflow.R
 import com.rex50.tuneflow.data.PreferencesManager
@@ -49,20 +53,31 @@ class VolumeControlService : Service(), LocationListener {
     private var lastSpeed = 0f
 
     companion object {
+        private const val TAG = "VolumeControlService"
         private const val NOTIFICATION_ID = 1
         private const val CHANNEL_ID = "VolumeControlChannel"
         private const val SMOOTHING_FACTOR = 0.8f
         private const val UPDATE_DELAY_MS = 500L
 
+        /**
+         * Starts the VolumeControlService
+         *
+         * @param context The context to start the service from
+         */
         fun startService(context: Context) {
             val intent = Intent(context, VolumeControlService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
             } else {
                 context.startService(intent)
             }
         }
 
+        /**
+         * Stops the VolumeControlService
+         *
+         * @param context The context to stop the service from
+         */
         fun stopService(context: Context) {
             val intent = Intent(context, VolumeControlService::class.java)
             context.stopService(intent)
@@ -86,7 +101,26 @@ class VolumeControlService : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
         val notification = createNotification()
-        startForeground(NOTIFICATION_ID, notification)
+
+        // Start foreground service with proper type for Android 14+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                // Android 14+ requires foreground service type
+                ServiceCompat.startForeground(
+                    this,
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Failed to start foreground service: ${e.message}", e)
+            // Stop the service if we can't start it properly
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         // Check for location permissions
         if (ActivityCompat.checkSelfPermission(
@@ -99,11 +133,11 @@ class VolumeControlService : Service(), LocationListener {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             // Request location updates from GPS provider
-            // Using 2-second intervals with 5-meter threshold for battery efficiency
+            // Using 1-second intervals with 0.5-meter threshold for battery efficiency
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                1000L, // Update every 2 seconds
-                0.5f,    // Minimum distance of 5 meters between updates
+                1000L, // Update every 1 second
+                0.5f,    // Minimum distance of 0.5 meters between updates
                 this
             )
         }
