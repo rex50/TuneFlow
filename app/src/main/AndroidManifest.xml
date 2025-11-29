@@ -33,12 +33,41 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.ServiceTrampolineActivity"
+            android:enabled="true"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Transparent" />
+
         <service
             android:name=".service.VolumeControlService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location"
             android:stopWithTask="false" />
+
+        <service
+            android:name=".service.TuneFlowTileService"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@drawable/ic_app_icon_tile"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".receiver.ServiceControlReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.rex50.tuneflow.ACTION_START_SERVICE" />
+                <action android:name="com.rex50.tuneflow.ACTION_STOP_SERVICE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
