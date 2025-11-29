@@ -14,8 +14,8 @@ android {
         applicationId = "com.rex50.tuneflow"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -60,7 +60,7 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     // Google Play Services Location for GPS resolution
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation(libs.play.services.location)
 
 
     testImplementation(libs.junit)
