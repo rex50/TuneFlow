@@ -4,10 +4,10 @@
     <string name="service_notification_title">TuneFlow Active</string>
     <string name="service_notification_text">Monitoring speed for volume control</string>
     <string name="speedometer_title">Current Speed</string>
-    <string name="service_control_title">Service Control</string>
+    <string name="service_control_title">Auto Volume</string>
     <string name="service_status_active">Service Active</string>
     <string name="service_status_inactive">Service Inactive</string>
-    <string name="service_control_helper">Enable to start monitoring speed and adjusting volume</string>
+    <string name="service_control_helper">Enable to start monitoring speed and auto adjusting volume</string>
     <string name="volume_range_title">Volume Range</string>
     <string name="volume_min_label">Minimum Volume</string>
     <string name="volume_max_label">Maximum Volume</string>
@@ -48,4 +48,8 @@
     <string name="turning_off_tile_toast">Disabling TuneFlow…</string>
     <string name="profile_saved_successfully">Profile saved successfully</string>
     <string name="profile_deleted_successfully">Profile deleted successfully</string>
+    <string name="profile_selected">SELECTED</string>
+    <string name="speed">Speed:</string>
+    <string name="volume">Volume:</string>
+    <string name="add_profile">Add Profile</string>
 </resources>

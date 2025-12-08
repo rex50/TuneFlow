@@ -96,7 +96,7 @@ fun VolumeRangeCard(
  */
 @Preview(showBackground = true)
 @Composable
-fun VolumeRangeCardPreview() {
+private fun VolumeRangeCardPreview() {
     VolumeRangeCard(
         minVolume = 20,
         maxVolume = 60,

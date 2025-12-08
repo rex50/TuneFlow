@@ -88,9 +88,10 @@ fun ServiceControlCard(
  */
 @Preview(showBackground = true)
 @Composable
-fun ServiceControlCardPreview() {
+private fun ServiceControlCardPreview() {
     ServiceControlCard(
         isServiceEnabled = true,
+        title = stringResource(R.string.service_control_title),
         onToggle = {},
         modifier = Modifier
     )
