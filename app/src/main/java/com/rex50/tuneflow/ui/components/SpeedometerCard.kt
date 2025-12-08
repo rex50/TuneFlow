@@ -180,7 +180,7 @@ private fun Gauge(
  */
 @Preview(showBackground = true)
 @Composable
-fun SpeedometerCardPreview() {
+private fun SpeedometerCardPreview() {
     SpeedometerCard(
         currentSpeed = 5f,
         maxSpeed = 10f,

@@ -1,10 +1,37 @@
+
 # 🎵 TuneFlow - Smart Driving Volume Control
+
+[![Android CI/CD Pipeline](https://github.com/rex50/TuneFlow/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/rex50/TuneFlow/actions/workflows/ci-cd.yml)
+[![Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![API](https://img.shields.io/badge/API-24%2B-brightgreen)](https://android-arsenal.com/api?level=24)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 > 🚗💨 Your music, perfectly tuned to your speed!
 
 TuneFlow is an intelligent Android application that automatically adjusts your media volume based on driving speed. Perfect for maintaining optimal music volume as driving conditions change – because your favorite song should sound great whether you're cruising or accelerating! 🎶
 
 ## ✨ Features
+
+### 🎯 Clean UI/UX
+- 🏠 Intuitive main screen with profiles and essential controls
+- 📊 Real-time speedometer gauge visualization
+- 🔘 Expandable FAB that collapses when scrolling through profiles
+- 🎨 Material Design 3 with dynamic theming
+- ✨ Smooth animations and transitions
+
+### 👤 Multiple Profiles
+- 📋 Create and manage multiple driving profiles
+- 🎨 Customize each profile with unique colors
+- 🔄 Switch between profiles for different driving scenarios
+- ✏️ Edit or delete profiles as needed
+- 🛣️ Default profiles included: City Drive, Highway Drive, Cycling and Running
+
+### ⚡ Quick Settings Tile
+- 🔘 Toggle service directly from Android Quick Settings panel
+- 🎯 One-tap access without opening the app
+- 📱 Real-time status indication
 
 ### 📡 Background Speed Monitoring
 - 🔄 Runs as a foreground service to continuously monitor driving speed
@@ -13,8 +40,8 @@ TuneFlow is an intelligent Android application that automatically adjusts your m
 - 🔋 Low battery impact with optimized location polling
 
 ### 🔊 Customizable Volume Range
-- 🔉 Set minimum volume level (20% - 100%)
-- 🔊 Set maximum volume level (20% - 100%)
+- 🔉 Set minimum volume level (0% - 100%)
+- 🔊 Set maximum volume level (0% - 100%)
 - 📊 Volume automatically maps between these values based on speed
 - 🎚️ Percentage-based controls for intuitive adjustment
 
@@ -34,10 +61,11 @@ TuneFlow is an intelligent Android application that automatically adjusts your m
 ## 🛠️ How It Works
 
 1. **🎬 Enable the Service**: Toggle the service switch to start monitoring
-2. **🎚️ Configure Volume Range**: Set your preferred minimum and maximum media volume levels (in %)
-3. **🏎️ Set Speed Range**: Define the speed thresholds that should trigger volume changes
-4. **🚗 Drive**: The app automatically adjusts volume as your speed changes
-5. **📊 Monitor**: Watch the real-time speedometer gauge to see your current speed
+2. **👤 Select or Create a Profile**: Choose an existing driving profile or create a new one with custom settings
+3. **🎚️ Configure Volume Range**: Set your preferred minimum and maximum media volume levels (in %)
+4. **🏎️ Set Speed Range**: Define the speed thresholds that should trigger volume changes
+5. **🚗 Drive**: The app automatically adjusts volume as your speed changes, based on the selected profile
+6. **📊 Monitor**: Watch the real-time speedometer gauge to see your current speed and enjoy your ride 
 
 ### 🧮 Volume Calculation
 
@@ -48,41 +76,27 @@ target_volume = min_volume + (volume_range × normalized_speed)
 
 ## 🔐 Permissions
 
+- 📍 **ACCESS_FINE_LOCATION**: To obtain accurate speed data via GPS
 - 🔧 **FOREGROUND_SERVICE**: Required to run the monitoring service in background
 - 🔔 **POST_NOTIFICATIONS**: For displaying service status notifications (Android 13+)
 - 🔊 **MODIFY_AUDIO_SETTINGS**: To control media volume
 - 📱 **Accelerometer**: Hardware sensor for detecting device movement
+- 🔋 **REQUEST_IGNORE_BATTERY_OPTIMIZATIONS**: To ensure uninterrupted background operation
 
 ## 🔧 Technical Details
 
 - 📱 **Min SDK**: Android 7.0 (API 24)
-- 🎯 **Target SDK**: Android 15 (API 36)
+- 🎯 **Target SDK**: Android 16 (API 36)
+- 📦 **Version**: 1.0.2 (versionCode 3)
 - 🏗️ **Architecture**: MVVM with Clean Architecture
 - 💉 **Dependency Injection**: Hilt
-- 🎨 **UI Framework**: Jetpack Compose
-- 💾 **Data Storage**: DataStore Preferences
+- 🎨 **UI Framework**: Jetpack Compose with Material 3
+- 💾 **Data Storage**: Room Database & DataStore Preferences
 - ⚙️ **Background Processing**: Foreground Service with Coroutines
 - 🎭 **State Management**: StateFlow & ViewModel
-
-## 💡 Usage Tips
-
-### 🏙️ For City Driving
-- 🐌 Min Speed: 5 km/h
-- 🚙 Max Speed: 40 km/h
-- 🔉 Min Volume: 20%
-- 🔊 Max Volume: 50%
-
-### 🛣️ For Highway Driving
-- 🚗 Min Speed: 20 km/h
-- 🏎️ Max Speed: 100 km/h
-- 🔉 Min Volume: 30%
-- 🔊 Max Volume: 70%
-
-### 🌄 For Rough Roads
-- 🛻 Min Speed: 10 km/h
-- 🚜 Max Speed: 60 km/h
-- 🔉 Min Volume: 25%
-- 🔊 Max Volume: 65%
+- 🧭 **Navigation**: Navigation Compose with Kotlin Serialization
+- 🧩 **Quick Settings Tile**: Toggle service from notification panel
+- 📍 **Location**: Google Play Services Location API
 
 ## ⚠️ Safety Notice
 
@@ -112,23 +126,28 @@ Or simply click the ▶️ **Run** button in Android Studio!
 ## 📦 Dependencies
 
 - 🎨 **Jetpack Compose** - Modern declarative UI toolkit
-- 💾 **DataStore Preferences** - For settings persistence
+- 💾 **Room Database** - Local data persistence for profiles
 - ⚡ **Kotlin Coroutines** - Asynchronous operations
 - 💉 **Dagger Hilt** - Dependency injection
 - 🏗️ **ViewModel & StateFlow** - State management
-- 🎯 **Navigation Compose** - Seamless navigation
+- 🎯 **Navigation Compose** - Seamless navigation with type-safe arguments
 - 🔔 **Notification API** - Service status updates
+- 📡 **Google Play Services Location** - GPS speed tracking
+- 📦 **Kotlin Serialization** - Type-safe navigation arguments
 
 ## 🎯 Key Highlights
 
 - ✅ Clean Architecture with MVVM pattern
 - ✅ Reactive UI with Jetpack Compose
 - ✅ Real-time speedometer gauge visualization
+- ✅ Multiple profiles for different driving scenarios
+- ✅ Expandable FAB with scroll-aware behavior
+- ✅ Quick Settings Tile for one-tap toggle
 - ✅ Percentage-based volume controls
 - ✅ Multiple speed unit support (km/h, mph)
 - ✅ Smooth volume transitions
 - ✅ Low battery consumption
-- ✅ Material Design 3
+- ✅ Material Design 3 with dynamic theming
 
 ## 📸 Screenshots
 
@@ -146,14 +165,14 @@ Contributions are welcome! Feel free to:
 **Made with ❤️ for safer and more enjoyable drives**
 
 🎵 *Drive safe, listen well!* 🚗💨
-- Material 3 - Design system
 
 ## Future Enhancements
 
+- [x] Multiple profiles for different driving scenarios
+- [x] Quick Settings Tile for one-tap service toggle
 - [ ] Support for Cancellation of service via notification
 - [ ] Support for different volume curves (logarithmic, exponential)
-- [ ] Multiple profiles for different driving scenarios
-- [ ] Widget for quick service toggle
+- [ ] Home screen widget for quick service toggle
 - [ ] Statistics and driving analytics
 
 ### 🔖 License
@@ -161,7 +180,7 @@ Contributions are welcome! Feel free to:
 ```
 MIT License
 
-Copyright (c) 2023 Pavitra Raut
+Copyright (c) 2025 Pavitra Raut
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

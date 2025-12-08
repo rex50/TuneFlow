@@ -1,5 +1,7 @@
 package com.rex50.tuneflow.ui.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,12 +13,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rex50.tuneflow.domain.model.Profile
 import com.rex50.tuneflow.domain.model.SpeedUnit
 import androidx.core.graphics.toColorInt
+import com.rex50.tuneflow.R
 
 /**
  * Card component displaying a profile with selection and edit functionality
@@ -36,10 +40,10 @@ fun ProfileCard(
             .clickable(onClick = onCardClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = parseColor(profile.colorHex).copy(alpha = 0.3f)
+            containerColor = parseColor(profile.colorHex).copy(alpha = 0.3f),
         ),
         border = if (isSelected) {
-            CardDefaults.outlinedCardBorder().copy(width = 2.dp)
+            BorderStroke(2.dp, parseColor(profile.colorHex).copy(alpha = 0.6f))
         } else null
     ) {
         Box(
@@ -50,7 +54,7 @@ fun ProfileCard(
             // Content
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 // Title row with edit button
                 Row(
@@ -60,14 +64,14 @@ fun ProfileCard(
                 ) {
                     Text(
                         text = profile.name,
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     IconButton(
                         onClick = onEditClick,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -83,7 +87,7 @@ fun ProfileCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Speed:",
+                        text = stringResource(R.string.speed),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -101,7 +105,7 @@ fun ProfileCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Volume:",
+                        text = stringResource(R.string.volume),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -121,7 +125,7 @@ fun ProfileCard(
                         color = MaterialTheme.colorScheme.primary
                     ) {
                         Text(
-                            text = "ACTIVE",
+                            text = stringResource(R.string.profile_selected),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimary,

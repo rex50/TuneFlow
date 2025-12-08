@@ -13,8 +13,8 @@ android {
         applicationId = "com.rex50.tuneflow"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -46,7 +46,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

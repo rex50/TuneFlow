@@ -12,6 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.rex50.tuneflow.R
+import com.rex50.tuneflow.domain.repository.ProfileRepository
 import com.rex50.tuneflow.domain.repository.ServiceStateRepository
 import com.rex50.tuneflow.ui.ServiceTrampolineActivity
 import com.rex50.tuneflow.utils.Constants
@@ -19,8 +20,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,6 +30,9 @@ class TuneFlowTileService : TileService() {
 
     @Inject
     lateinit var serviceStateRepository: ServiceStateRepository
+
+    @Inject
+    lateinit var profileRepository: ProfileRepository
 
     private val serviceScope: CoroutineScope by lazy {
         CoroutineScope(Dispatchers.Main + Job())
@@ -211,13 +215,14 @@ class TuneFlowTileService : TileService() {
         val tile = qsTile ?: return@launch
 
         Log.d(Constants.LogTags.TILE_SERVICE, "Updating tile state to: $isEnabled")
+        val selectedProfile = profileRepository.getSelectedProfile().firstOrNull()?.name
         if (isEnabled) {
             tile.state = Tile.STATE_ACTIVE
-            tile.label = getString(R.string.tile_label_active)
+            tile.label = selectedProfile ?: getString(R.string.tile_label_active)
             tile.contentDescription = getString(R.string.tile_description_active)
         } else {
             tile.state = Tile.STATE_INACTIVE
-            tile.label = getString(R.string.tile_label_inactive)
+            tile.label = selectedProfile ?: getString(R.string.tile_label_inactive)
             tile.contentDescription = getString(R.string.tile_description_inactive)
         }
 
