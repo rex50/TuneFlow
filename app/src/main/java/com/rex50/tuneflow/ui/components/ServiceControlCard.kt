@@ -27,16 +27,17 @@ import com.rex50.tuneflow.R
  * Features:
  * - Shows service status (active/inactive)
  * - Provides a toggle switch to enable/disable the service
- * - Animates card padding when service is disabled
  * - Shows a helper text for user guidance
  *
  * @param isServiceEnabled Current service enabled state
+ * @param title Title text for the card
  * @param onToggle Callback when the switch is toggled
  * @param modifier Optional modifier for the card
  */
 @Composable
 fun ServiceControlCard(
     isServiceEnabled: Boolean,
+    title: String,
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -50,38 +51,34 @@ fun ServiceControlCard(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+
+        // Status row with text and switch
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Title
-            Text(
-                text = stringResource(R.string.service_control_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            // Status row with text and switch
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val statusText = if (isServiceEnabled) {
-                    stringResource(R.string.service_status_active)
-                } else {
-                    stringResource(R.string.service_status_inactive)
-                }
-                Text(text = statusText, style = MaterialTheme.typography.bodyLarge)
-                Switch(checked = isServiceEnabled, onCheckedChange = onToggle)
-            }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
 
-            // Helper text
-            Text(
-                text = stringResource(R.string.service_control_helper),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-            )
+                Text(
+                    text = stringResource(R.string.service_control_helper),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                )
+            }
+            Switch(checked = isServiceEnabled, onCheckedChange = onToggle)
         }
     }
 }

@@ -137,6 +137,7 @@ fun HomeScreen(
                     PermissionsUiState.AllGranted -> {
                         ServiceControlCard(
                             isServiceEnabled = uiState.isServiceEnabled,
+                            title = uiState.selectedProfile?.name ?: stringResource(R.string.service_control_title),
                             onToggle = { enabled ->
                                 scope.launch {
                                     if (enabled) {
